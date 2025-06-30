@@ -11,12 +11,14 @@ import fetch from 'node-fetch';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Ruta raíz del proyecto (un nivel arriba de backend/)
+const rootPath = path.resolve(__dirname, '..');
+
 // Cargar variables de entorno desde backend/.env
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 console.log('📍 Ruta del .env cargado:', path.resolve(__dirname, '.env'));
 console.log('🧪 DEBUG - DATABASE_URL:', process.env.DATABASE_URL);
-
 console.log('🧪 DEBUG - EMAIL_USER:', process.env.EMAIL_USER);
 console.log('🧪 DEBUG - EMAIL_PASS:', process.env.EMAIL_PASS ? '****' : 'undefined');
 console.log('🧪 DEBUG - WHATSAPP_INSTANCE_ID:', process.env.WHATSAPP_INSTANCE_ID);
@@ -28,10 +30,18 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-// Servir imágenes estáticas
+// Servir archivos estáticos del frontend (perfil.html y otros en la raíz)
+app.use(express.static(rootPath));
+
+// Opcional: cuando visiten la raíz, enviar perfil.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(rootPath, 'perfil.html'));
+});
+
+// Servir imágenes estáticas backend
 app.use('/imagenes', express.static(path.join(__dirname, 'imagenes')));
 
-// Configurar multer
+// Configurar multer para subir imágenes
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, 'imagenes', 'mascotas'));
@@ -318,3 +328,4 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Servidor backend escuchando en puerto ${PORT}`);
 });
+
