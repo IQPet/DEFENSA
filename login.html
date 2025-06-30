@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ingreso de Dueño - IQPet</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 1s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    main {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      border-radius: 16px;
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
+      color: #fff;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      animation: dropIn 0.6s ease-out;
+    }
+
+    @keyframes dropIn {
+      0% { opacity: 0; transform: translateY(-20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #f1f1f1;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #eee;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      border: none;
+      border-radius: 8px;
+      background-color: #ffffff15;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    input:focus {
+      outline: 2px solid #26f0f1;
+      background-color: #ffffff20;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 25px;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #00c9ff, #92fe9d);
+      color: #000;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.3s ease-in-out;
+    }
+
+    button:disabled {
+      background: #aaa;
+      cursor: wait;
+    }
+
+    #mensaje-error {
+      margin-top: 15px;
+      background-color: rgba(255, 0, 0, 0.15);
+      padding: 10px;
+      border-radius: 8px;
+      color: #ffcccc;
+      font-size: 14px;
+      display: none;
+      animation: slideDown 0.4s ease-in-out;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h2>🔐 Ingreso del Dueño</h2>
+    <form id="form-login">
+      <label>📧 Correo electrónico:</label>
+      <input type="email" id="correo" required />
+
+      <label>🔑 Clave secreta:</label>
+      <input type="password" id="clave" required />
+
+      <button type="submit" id="btn-ingresar">Ingresar</button>
+    </form>
+    <p id="mensaje-error"></p>
+  </main>
+
+  <script type="module">
+    const form = document.getElementById('form-login');
+    const errorMsg = document.getElementById('mensaje-error');
+    const boton = document.getElementById('btn-ingresar');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const correo = document.getElementById('correo').value.trim();
+      const clave = document.getElementById('clave').value.trim();
+      errorMsg.style.display = 'none';
+
+      boton.disabled = true;
+      boton.textContent = "Verificando...";
+
+      try {
+        const res = await fetch('http://localhost:3001/api/validar-dueno', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ correo, clave })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          errorMsg.textContent = data.error || 'Error al ingresar';
+          errorMsg.style.display = 'block';
+          boton.disabled = false;
+          boton.textContent = "Ingresar";
+          return;
+        }
+
+        localStorage.setItem('duenoId', data.duenoId);
+        boton.textContent = "Ingresando...";
+        setTimeout(() => {
+          window.location.href = 'editar.html';
+        }, 700);
+
+      } catch (error) {
+        console.error("Error al intentar ingresar:", error);
+        errorMsg.textContent = 'Error de conexión con el servidor.';
+        errorMsg.style.display = 'block';
+        boton.disabled = false;
+        boton.textContent = "Ingresar";
+      }
+    });
+  </script>
+</body>
+</html>

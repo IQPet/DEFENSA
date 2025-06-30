@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Editar Perfil de Mascota - IQPet</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    header.header-principal {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 20px 30px;
+      background-color: rgba(0,0,0,0.3);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .header-principal .logo {
+      height: 50px;
+    }
+
+    .titulo-encabezado h1 {
+      margin: 0;
+      font-size: 26px;
+      color: #00e6e6;
+    }
+
+    .titulo-encabezado .lema {
+      margin: 0;
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    main {
+      max-width: 600px;
+      margin: 40px auto;
+      background: rgba(255,255,255,0.05);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+      backdrop-filter: blur(12px);
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    section {
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-top: 10px;
+      margin-bottom: 5px;
+      color: #00ffd0;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      background-color: rgba(255,255,255,0.08);
+      color: #fff;
+      font-size: 14px;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: 2px solid #00e6e6;
+      background-color: rgba(255,255,255,0.12);
+    }
+
+    h3 {
+      margin-bottom: 10px;
+      color: #00ffd0;
+    }
+
+    #foto-preview {
+      width: 100%;
+      max-height: 220px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      border: 2px solid rgba(255,255,255,0.2);
+    }
+
+    #btn-guardar {
+      background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+      color: #000;
+      font-weight: bold;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 15px;
+      box-shadow: 0 0 12px rgba(0,255,255,0.5);
+      animation: pulseGlow 2.5s infinite;
+      transition: transform 0.2s ease;
+    }
+
+    #btn-guardar:hover {
+      transform: scale(1.03);
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 10px rgba(0,255,255,0.3); }
+      50% { box-shadow: 0 0 25px rgba(0,255,255,0.9); }
+      100% { box-shadow: 0 0 10px rgba(0,255,255,0.3); }
+    }
+
+    .custom-file {
+      position: relative;
+      margin-bottom: 15px;
+      border: 2px dashed rgba(255, 255, 255, 0.3);
+      padding: 16px;
+      border-radius: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      color: #ccc;
+    }
+
+    .custom-file:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .custom-file input[type="file"] {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      left: 0;
+      top: 0;
+      cursor: pointer;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #bbb;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header-principal">
+    <img src="LOGO.png" alt="Logo de IQPet" class="logo"/>
+    <div class="titulo-encabezado">
+      <h1>IQPet</h1>
+      <p class="lema">Edita la información de tu mascota</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="perfil-mascota">
+      <label for="foto-input">📷 Foto de la mascota</label>
+      <img id="foto-preview" src="" alt="Foto actual de la mascota" />
+      <div class="custom-file">
+        <input type="file" id="foto-input" accept="image/*" />
+        <span>Haz clic o arrastra una imagen aquí</span>
+      </div>
+
+      <label for="nombre-mascota">🐾 Nombre de la mascota</label>
+      <input type="text" id="nombre-mascota" placeholder="Ej: Luna" />
+
+      <label for="estado">📍 Estado actual</label>
+      <select id="estado">
+        <option value="Perdida">Perdida</option>
+        <option value="En casa">En casa</option>
+      </select>
+
+      <label for="mensaje-mascota">📝 Mensaje de la mascota</label>
+      <textarea id="mensaje-mascota" rows="3" placeholder="Ej: Me perdí cerca del parque..."></textarea>
+    </section>
+
+    <section class="datos-mascota">
+      <label for="especie">🐕 Especie</label>
+      <input type="text" id="especie" placeholder="Ej: Perro" />
+
+      <label for="raza">🏷️ Raza</label>
+      <input type="text" id="raza" placeholder="Ej: Labrador" />
+
+      <label for="edad">🎂 Edad</label>
+      <input type="text" id="edad" placeholder="Ej: 3 años" />
+
+      <label for="historial_salud">🩺 Historial de salud</label>
+      <textarea id="historial_salud" rows="2" placeholder="Ej: Vacunas al día, esterilizada..."></textarea>
+    </section>
+
+    <section class="contacto-dueno">
+      <h3>👤 Datos del dueño</h3>
+
+      <label for="nombre-dueno">Nombre completo</label>
+      <input type="text" id="nombre-dueno" placeholder="Ej: Juan Pérez" />
+
+      <label for="telefono-dueno">📞 Teléfono</label>
+      <input type="text" id="telefono-dueno" placeholder="Ej: +34 600 123 456" />
+
+      <label for="correo-dueno">📧 Correo electrónico</label>
+      <input type="email" id="correo-dueno" placeholder="Ej: juan@example.com" />
+
+      <label for="mensaje-dueno">📨 Mensaje del dueño</label>
+      <textarea id="mensaje-dueno" rows="3" placeholder="Ej: Por favor contáctame si la ves..."></textarea>
+    </section>
+
+    <section style="text-align: center; margin-top: 20px;">
+      <button id="btn-guardar">💾 Guardar Cambios</button>
+    </section>
+  </main>
+
+  <footer>
+    <p id="aviso-legal">Recuerda que puedes actualizar esta información en cualquier momento.</p>
+  </footer>
+
+  <script type="module" src="js/editar.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Perfil de Mascota - IQPet</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* Encabezado principal */
+    .header-principal {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 25px;
+      background-color: rgba(0, 0, 0, 0.15);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(6px);
+    }
+
+    .header-principal .logo {
+      height: 45px;
+    }
+
+    .titulo-encabezado h1 {
+      margin: 0;
+      font-size: 24px;
+      color: #0072ff;
+    }
+
+    .titulo-encabezado p.lema {
+      margin: 0;
+      font-size: 13px;
+      color: #555;
+    }
+
+    .boton-login {
+      text-decoration: none;
+      background: linear-gradient(90deg, #0072ff, #005ecb);
+      color: white;
+      padding: 7px 15px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 14px;
+      box-shadow: 0 2px 6px rgba(0, 94, 203, 0.4);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .boton-login:hover {
+      background: linear-gradient(90deg, #005ecb, #003d99);
+      box-shadow: 0 4px 10px rgba(0, 61, 153, 0.6);
+    }
+
+    @media (max-width: 600px) {
+      .header-principal {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .titulo-encabezado h1 {
+        font-size: 20px;
+      }
+
+      .titulo-encabezado p.lema {
+        font-size: 12px;
+      }
+
+      .boton-login {
+        width: 100%;
+        text-align: center;
+        padding: 10px 0;
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Modal consentimiento -->
+  <div id="consent-modal" style="
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  ">
+    <div style="
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 90%;
+      text-align: center;
+    ">
+      <h2>🐾 ¡Hola, amigo/a de los peluditos!</h2>
+      <p>
+        Qué alegría tenerte aquí. Este espacio fue creado para ayudar a que cada mascota pueda reencontrarse con su hogar lleno de amor.<br><br>
+        Para hacer posible esa magia, usaremos de forma puntual algunos datos básicos, como desde dónde nos visitas y el tipo de dispositivo que estás usando.<br><br>
+        <strong>No te preocupes, no guardamos ni compartimos tu información.</strong> Solo se usa una sola vez para avisar con cariño al dueño que alguien ha visto este perfil.<br><br>
+        ¡Gracias por ser parte de esta red solidaria que cuida a nuestros amigos peludos! 💖🐶🐱
+      </p>
+
+      <div style="margin-top: 15px;">
+        <button onclick="aceptarConsentimiento()" style="padding: 10px 20px; margin-right: 10px;">✅ Acepto</button>
+        <button onclick="rechazarConsentimiento()" style="padding: 10px 20px;">❌ Rechazo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Encabezado -->
+  <header class="header-principal">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <img src="LOGO.png" alt="Logo de IQPet" class="logo" />
+      <div class="titulo-encabezado">
+        <h1>IQPet</h1>
+        <p class="lema">Conecta y protege a tus mascotas con nuestra tecnología innovadora</p>
+      </div>
+    </div>
+    <a href="login.html" class="boton-login" aria-label="Iniciar sesión">🔐 Iniciar sesión</a>
+  </header>
+
+  <!-- Contenido -->
+  <main>
+    <section class="perfil-mascota">
+      <img id="foto-mascota" src="" alt="Foto de la mascota" />
+      <h2 id="nombre-mascota">Nombre</h2>
+      <p id="estado" class="estado"></p>
+      <div class="mensaje-mascota">
+        <h3>Mensaje de la mascota</h3>
+        <p id="mensaje-mascota"></p>
+      </div>
+    </section>
+
+    <section class="datos-mascota">
+      <p><strong>Especie:</strong> <span id="especie"></span></p>
+      <p><strong>Raza:</strong> <span id="raza"></span></p>
+      <p><strong>Edad:</strong> <span id="edad"></span></p>
+      <p><strong>Historial de salud:</strong> <span id="historial_salud"></span></p>
+    </section>
+
+    <section class="contacto-dueno">
+      <h3>Datos del dueño</h3>
+      <p><strong>Nombre:</strong> <span id="nombre-dueno"></span></p>
+      <p><strong>Teléfono:</strong> <span id="telefono-dueno"></span></p>
+      <p><strong>Correo electrónico:</strong> <span id="correo-dueno"></span></p>
+      <p><strong>Mensaje del dueño:</strong> <span id="mensaje-dueno"></span></p>
+      <button id="btn-contactar">Contactar con el dueño</button>
+    </section>
+  </main>
+
+  <!-- Pie -->
+  <footer>
+    <p id="aviso-legal">Este perfil es solo para fines informativos. No se comparte información privada sin autorización.</p>
+    <div id="estado-detector">
+      <p id="ubicacion-status">📍 Ubicación registrada: ⏳</p>
+      <p id="ip-status">🌐 IP detectada: ⏳</p>
+      <p id="dispositivo-status">💻 Dispositivo reconocido: ⏳</p>
+    </div>
+  </footer>
+
+  <!-- JS módulos -->
+  <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/detector.js"></script>
+  <script type="module" src="js/ubicacion.js"></script>
+  <script type="module">
+    import { aceptarConsentimiento, rechazarConsentimiento } from "./js/notificacion.js";
+    window.aceptarConsentimiento = aceptarConsentimiento;
+    window.rechazarConsentimiento = rechazarConsentimiento;
+  </script>
+</body>
+</html>
