@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const mascotaId = 1; // Puedes ajustar este ID según la mascota
 
   try {
-    const res = await fetch(`http://localhost:3001/api/perfil/${mascotaId}`);
+    const res = await fetch(`https://defensa-1.onrender.com/api/perfil/${mascotaId}`);
     const data = await res.json();
 
     if (res.status !== 200) {
@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Mostrar datos en el DOM
-    document.getElementById("foto-mascota").src = `http://localhost:3001/${data.foto}`;
+    document.getElementById("foto-mascota").src = `https://defensa-1.onrender.com/${data.foto}`;
     document.getElementById("nombre-mascota").textContent = data.nombre_mascota;
 
     const estadoEl = document.getElementById("estado");

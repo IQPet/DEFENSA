@@ -3,13 +3,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
     // Obtener datos actuales del perfil
-    const res = await fetch(`http://localhost:3001/api/perfil/${mascotaId}`);
+    const res = await fetch(`https://defensa-1.onrender.com/api/perfil/${mascotaId}`);
     const data = await res.json();
 
     if (!res.ok) throw new Error(data.error || "No se pudo obtener el perfil");
 
     // Mostrar datos en inputs
-    document.getElementById("foto-preview").src = `http://localhost:3001/${data.foto}`;
+    document.getElementById("foto-preview").src = `https://defensa-1.onrender.com/${data.foto}`;
     document.getElementById("nombre-mascota").value = data.nombre_mascota;
     document.getElementById("estado").value = data.estado;
     document.getElementById("mensaje-mascota").value = data.mensaje_mascota;
@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:3001/api/editar-perfil/${mascotaId}`, {
+      const res = await fetch(`https://defensa-1.onrender.com/api/editar-perfil/${mascotaId}`, {
         method: "PUT",
         body: formData,
       });

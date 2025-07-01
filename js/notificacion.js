@@ -43,7 +43,7 @@ export async function aceptarConsentimiento() {
 
   // Enviar al backend
   try {
-    const res = await fetch("http://localhost:3001/api/notificar-dueno", {
+    const res = await fetch("https://defensa-1.onrender.com/api/notificar-dueno", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
