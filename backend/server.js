@@ -81,36 +81,33 @@ transporter.verify((error, success) => {
 app.post('/api/notificar-dueno', async (req, res) => {
   console.log("📥 [Paso 1] Solicitud recibida en /api/notificar-dueno");
 
-  const { mascotaId, ubicacion, ip, dispositivo } = req.body;
+ const { mascotaId, ubicacion, ip, dispositivo, fechaHora } = req.body;
 
-  if (!mascotaId) {
-    return res.status(400).json({ error: 'Debe proporcionar el ID de la mascota' });
+if (!mascotaId) {
+  return res.status(400).json({ error: 'Debe proporcionar el ID de la mascota' });
+}
+
+try {
+  const query = `
+    SELECT 
+      m.nombre AS nombre_mascota,
+      m.mensaje AS mensaje_mascota,
+      d.correo,
+      d.telefono
+    FROM mascotas m
+    JOIN duenos d ON m.dueno_id = d.id
+    WHERE m.id = $1
+  `;
+
+  const result = await pool.query(query, [mascotaId]);
+
+  if (result.rows.length === 0) {
+    return res.status(404).json({ error: 'Mascota no encontrada' });
   }
 
-  try {
-    const query = `
-      SELECT 
-        m.nombre AS nombre_mascota,
-        m.mensaje AS mensaje_mascota,
-        d.correo,
-        d.telefono
-      FROM mascotas m
-      JOIN duenos d ON m.dueno_id = d.id
-      WHERE m.id = $1
-    `;
+  const datos = result.rows[0];
 
-    const result = await pool.query(query, [mascotaId]);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Mascota no encontrada' });
-    }
-
-    const { mascotaId, ubicacion, ip, dispositivo, fechaHora } = req.body;
-
-const datos = result.rows[0];
-console.log("🧪 Datos de mascota y dueño:", datos);
-
-const textoMensaje = `
+  const textoMensaje = `
 Hola, alguien visualizó el perfil de tu mascota "${datos.nombre_mascota}".
 
 📍 Ubicación estimada: ${ubicacion}
@@ -120,7 +117,9 @@ Hola, alguien visualizó el perfil de tu mascota "${datos.nombre_mascota}".
 📝 Mensaje adicional: ${datos.mensaje_mascota || 'Ninguno'}
 
 🕒 Fecha y hora: ${fechaHora || new Date().toLocaleString()}
-`;
+  `;
+
+
 
     // Enviar correo
     if (datos.correo) {
