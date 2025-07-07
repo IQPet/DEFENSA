@@ -1,7 +1,7 @@
 // 📦 detector.js mejorado - IQPet
 // Usa GPS de alta precisión + fallback por IP + detección detallada de dispositivo con UAParser.js
-
-import UAParser from 'https://unpkg.com/ua-parser-js@1.0.35/dist/ua-parser.esm.js';
+// IMPORTANTE: UAParser debe ser incluido como script global en index.html:
+// <script src="https://cdn.jsdelivr.net/npm/ua-parser-js@1.0.35/dist/ua-parser.min.js"></script>
 
 export function detectarUbicacion(callback) {
   if ("geolocation" in navigator) {
@@ -52,6 +52,13 @@ export function detectarUbicacion(callback) {
 }
 
 export function detectarDispositivo(callback) {
+  // UAParser debe estar cargado globalmente
+  if (typeof UAParser === "undefined") {
+    console.error("❌ UAParser no está disponible. Asegúrate de incluir el script en el HTML.");
+    callback("No disponible");
+    return;
+  }
+
   const parser = new UAParser();
   const result = parser.getResult();
 
