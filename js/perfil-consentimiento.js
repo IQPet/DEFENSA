@@ -8,7 +8,7 @@ async function recolectarDatos(consiente) {
 
   // Ejecutar detección con timeout o fallback para evitar bloqueos
   const dispositivo = await safeDetect(detectarDispositivo, "No disponible");
-  const ipPublica = await safeObtenerIP();
+  const ip = await safeObtenerIP();
 
   let ubicacion = "No disponible";
   if (consiente) {
@@ -16,12 +16,12 @@ async function recolectarDatos(consiente) {
   }
 
   const datos = {
+    mascotaId: 1, // ⚠️ ID fijo si solo tienes un perfil
     fechaHora,
-    ipPublica,
+    ip, // campo exacto que espera el backend
     dispositivo,
-    ubicacion,
-    mascota: document.getElementById("nombre-mascota")?.textContent || "Desconocida",
-    consentimiento: consiente,
+    ubicacion: typeof ubicacion === 'string' ? ubicacion : ubicacion.texto,
+    mensajePersonalizado: "¡Alguien visualizó el perfil de tu mascota!",
   };
 
   limpiarResumen();
@@ -55,15 +55,15 @@ function limpiarResumen() {
   if (zona) zona.innerHTML = "";
 }
 
-function mostrarResumen({ fechaHora, ipPublica, dispositivo, ubicacion }) {
+function mostrarResumen({ fechaHora, ip, dispositivo, ubicacion }) {
   const zona = document.getElementById("zona-info") || document.body;
   const div = document.createElement("div");
   div.style = "margin-top: 20px; padding: 10px; background: #f0f0f0; border-radius: 10px;";
   div.innerHTML = `
     <p>📋 Información recolectada:</p>
     <p>🕒 Fecha y hora: ${fechaHora}</p>
-    <p>📍 Ubicación estimada: ${typeof ubicacion === 'string' ? ubicacion : ubicacion.texto}</p>
-    <p>🌐 IP pública: ${ipPublica}</p>
+    <p>📍 Ubicación estimada: ${ubicacion}</p>
+    <p>🌐 IP pública: ${ip}</p>
     <p>💻 Dispositivo: ${dispositivo}</p>
   `;
   zona.appendChild(div);
@@ -76,6 +76,7 @@ async function enviarNotificacion(datos) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(datos),
     });
+
     if (res.ok) {
       console.log("[✔] Notificación enviada al dueño.");
     } else {
@@ -86,7 +87,7 @@ async function enviarNotificacion(datos) {
   }
 }
 
-// Mostrar/ocultar el modal correctamente
+// ✅ Mostrar/ocultar el modal correctamente
 function aceptarConsentimiento() {
   const modal = document.getElementById("consentimiento-modal");
   if (modal) modal.style.display = "none";
@@ -99,7 +100,7 @@ function rechazarConsentimiento() {
   recolectarDatos(false);
 }
 
-// Asegurar que los botones se enlacen correctamente
+// ✅ Enlazar eventos al cargar
 document.addEventListener("DOMContentLoaded", () => {
   const btnAceptar = document.getElementById("btn-aceptar");
   const btnRechazar = document.getElementById("btn-rechazar");
