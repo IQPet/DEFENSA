@@ -122,8 +122,6 @@ Hola, alguien visualizó el perfil de tu mascota "${datos.nombre_mascota}".
 🕒 Fecha y hora: ${fechaHora || new Date().toLocaleString()}
 `;
 
-
-
     // Enviar correo
     if (datos.correo) {
       try {

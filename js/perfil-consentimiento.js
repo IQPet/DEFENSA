@@ -1,3 +1,4 @@
+// 📋 perfil-consentimiento.js
 import { detectarUbicacion, detectarDispositivo } from './detector.js';
 
 async function recolectarDatos(consiente) {
@@ -61,7 +62,7 @@ function mostrarResumen({ fechaHora, ipPublica, dispositivo, ubicacion }) {
   div.innerHTML = `
     <p>📋 Información recolectada:</p>
     <p>🕒 Fecha y hora: ${fechaHora}</p>
-    <p>📍 Ubicación estimada: ${ubicacion}</p>
+    <p>📍 Ubicación estimada: ${typeof ubicacion === 'string' ? ubicacion : ubicacion.texto}</p>
     <p>🌐 IP pública: ${ipPublica}</p>
     <p>💻 Dispositivo: ${dispositivo}</p>
   `;
@@ -85,17 +86,20 @@ async function enviarNotificacion(datos) {
   }
 }
 
+// Mostrar/ocultar el modal correctamente
 function aceptarConsentimiento() {
-  document.getElementById("consentimiento-modal").style.display = "none";
+  const modal = document.getElementById("consentimiento-modal");
+  if (modal) modal.style.display = "none";
   recolectarDatos(true);
 }
 
 function rechazarConsentimiento() {
-  document.getElementById("consentimiento-modal").style.display = "none";
+  const modal = document.getElementById("consentimiento-modal");
+  if (modal) modal.style.display = "none";
   recolectarDatos(false);
 }
 
-// **Agregar listeners a los botones cuando se cargue el módulo**
+// Asegurar que los botones se enlacen correctamente
 document.addEventListener("DOMContentLoaded", () => {
   const btnAceptar = document.getElementById("btn-aceptar");
   const btnRechazar = document.getElementById("btn-rechazar");
