@@ -139,7 +139,7 @@
       boton.textContent = "Verificando...";
 
       try {
-        const res = await fetch('http://localhost:3001/api/validar-dueno', {
+        const res = await fetch('https://iqpet-backend.onrender.com/api/validar-dueno', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ correo, clave })

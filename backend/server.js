@@ -105,10 +105,12 @@ app.post('/api/notificar-dueno', async (req, res) => {
       return res.status(404).json({ error: 'Mascota no encontrada' });
     }
 
-    const datos = result.rows[0];
-    console.log("🧪 Datos de mascota y dueño:", datos);
+    const { mascotaId, ubicacion, ip, dispositivo, fechaHora } = req.body;
 
-    const textoMensaje = `
+const datos = result.rows[0];
+console.log("🧪 Datos de mascota y dueño:", datos);
+
+const textoMensaje = `
 Hola, alguien visualizó el perfil de tu mascota "${datos.nombre_mascota}".
 
 📍 Ubicación estimada: ${ubicacion}
@@ -117,8 +119,10 @@ Hola, alguien visualizó el perfil de tu mascota "${datos.nombre_mascota}".
 
 📝 Mensaje adicional: ${datos.mensaje_mascota || 'Ninguno'}
 
-🕒 Fecha y hora: ${new Date().toLocaleString()}
-    `;
+🕒 Fecha y hora: ${fechaHora || new Date().toLocaleString()}
+`;
+
+
 
     // Enviar correo
     if (datos.correo) {

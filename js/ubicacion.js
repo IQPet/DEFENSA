@@ -4,30 +4,56 @@ function logPaso(mensaje) {
   console.log("🔍 [TRAZA]:", mensaje);
 }
 
-function aceptarConsentimiento() {
-  const modal = document.getElementById('consent-modal');
-  if (modal) modal.style.display = 'none';
+function mostrarResumen(datos) {
+  const resumenDiv = document.getElementById('resumen-datos');
+  if (!resumenDiv) return;
 
-  logPaso("Consentimiento aceptado. Iniciando detección...");
-  iniciarDeteccion();
+  resumenDiv.innerHTML = `
+    <p>🕒 Fecha y hora: ${datos.fechaHora}</p>
+    <p>📍 Ubicación estimada: ${datos.ubicacion}</p>
+    <p>🌐 IP pública: ${datos.ipPublica}</p>
+    <p>💻 Dispositivo: ${datos.dispositivo}</p>
+    <p><em>Se ha enviado esta información al responsable de la mascota.</em></p>
+  `;
+  resumenDiv.style.display = 'block';
+}
+
+async function obtenerIpPublica() {
+  try {
+    const res = await fetch('https://api.ipify.org?format=json');
+    if (!res.ok) throw new Error('No se pudo obtener IP pública');
+    const data = await res.json();
+    return data.ip || 'IP no disponible';
+  } catch (error) {
+    console.warn('⚠️ Error obteniendo IP pública:', error);
+    return 'IP no disponible';
+  }
 }
 
 async function iniciarDeteccion() {
   try {
-    logPaso("⏳ Iniciando detección de ubicación y dispositivo...");
+    logPaso("⏳ Iniciando detección de ubicación, dispositivo e IP pública...");
 
-    const [ubicacion, dispositivo] = await Promise.all([
+    // Ejecutar en paralelo la detección
+    const [ubicacion, dispositivo, ipPublica] = await Promise.all([
       new Promise(resolve => detectarUbicacion(resolve)),
-      new Promise(resolve => detectarDispositivo(resolve))
+      new Promise(resolve => detectarDispositivo(resolve)),
+      obtenerIpPublica()
     ]);
+
+    const fechaHora = new Date().toLocaleString();
 
     const datos = {
       ubicacion: ubicacion || "No disponible",
-      dispositivo: dispositivo || "No disponible"
+      dispositivo: dispositivo || "No disponible",
+      ipPublica,
+      fechaHora
     };
 
     window.datosVisitante = datos;
-    logPaso("✅ Datos recopilados correctamente: " + JSON.stringify(datos));
+    logPaso("✅ Datos recopilados: " + JSON.stringify(datos));
+
+    mostrarResumen(datos);
 
     logPaso("📤 Enviando notificación al backend...");
     await enviarNotificacion(datos);
@@ -38,13 +64,42 @@ async function iniciarDeteccion() {
   }
 }
 
-window.aceptarConsentimiento = aceptarConsentimiento;
-
-window.rechazarConsentimiento = () => {
+function aceptarConsentimiento() {
   const modal = document.getElementById('consent-modal');
   if (modal) modal.style.display = 'none';
-  logPaso("Consentimiento rechazado. No se recopilan datos.");
-};
+
+  logPaso("Consentimiento aceptado. Iniciando detección...");
+  iniciarDeteccion();
+}
+
+function rechazarConsentimiento() {
+  const modal = document.getElementById('consent-modal');
+  if (modal) modal.style.display = 'none';
+
+  logPaso("Consentimiento rechazado. Solo se recopila IP, dispositivo y fecha/hora.");
+
+  // Si se rechaza la ubicación, igual obtenemos IP, dispositivo y fecha/hora
+  detectarDispositivo(async (dispositivo) => {
+    const ipPublica = await obtenerIpPublica();
+    const fechaHora = new Date().toLocaleString();
+
+    const datos = {
+      ubicacion: "No compartida",
+      dispositivo: dispositivo || "No disponible",
+      ipPublica,
+      fechaHora
+    };
+
+    window.datosVisitante = datos;
+    mostrarResumen(datos);
+
+    // Enviar mensaje reducido al backend
+    await enviarNotificacion(datos);
+  });
+}
+
+window.aceptarConsentimiento = aceptarConsentimiento;
+window.rechazarConsentimiento = rechazarConsentimiento;
 
 document.addEventListener('DOMContentLoaded', () => {
   const modal = document.getElementById('consent-modal');
@@ -57,6 +112,8 @@ async function enviarNotificacion(datos) {
     nombreMascota: document.getElementById('nombre-mascota')?.textContent || 'Mascota desconocida',
     ubicacion: datos.ubicacion,
     dispositivo: datos.dispositivo,
+    ipPublica: datos.ipPublica,
+    fechaHora: datos.fechaHora,
     telefonoWhatsApp: "+591 73958015",
     correoDueno: "melgarcoimbradora@gmail.com",
     mensajePersonalizado: "¡Alguien visualizó el perfil de tu mascota!",
@@ -82,4 +139,3 @@ async function enviarNotificacion(datos) {
     console.error('❌ Error al enviar notificación:', error);
   }
 }
-

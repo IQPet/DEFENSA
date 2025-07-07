@@ -78,35 +78,36 @@
 </head>
 <body>
 
-  <!-- Modal consentimiento -->
-  <div id="consent-modal" style="
+  <!-- Modal de consentimiento -->
+  <div id="consentimiento-modal" style="
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.6);
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     z-index: 9999;
   ">
     <div style="
       background: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 90%;
+      max-width: 600px;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
       text-align: center;
+      color: #222;
     ">
-      <h2>🐾 ¡Hola, amigo/a de los peluditos!</h2>
-      <p>
-        Qué alegría tenerte aquí. Este espacio fue creado para ayudar a que cada mascota pueda reencontrarse con su hogar lleno de amor.<br><br>
-        Para hacer posible esa magia, usaremos de forma puntual algunos datos básicos, como desde dónde nos visitas y el tipo de dispositivo que estás usando.<br><br>
-        <strong>No te preocupes, no guardamos ni compartimos tu información.</strong> Solo se usa una sola vez para avisar con cariño al dueño que alguien ha visto este perfil.<br><br>
-        ¡Gracias por ser parte de esta red solidaria que cuida a nuestros amigos peludos! 💖🐶🐱
+      <h2>🐾 Bienvenido/a al perfil de esta mascota</h2>
+      <p style="font-size: 15px; text-align: justify;">
+        Gracias por visitar este espacio diseñado para facilitar el reencuentro entre mascotas y sus familias.<br><br>
+        Con el objetivo de mejorar la efectividad de esta plataforma, y únicamente tras tu consentimiento explícito, solicitaremos autorización para recopilar ciertos datos técnicos como tu dirección IP, ubicación aproximada y tipo de dispositivo utilizado. Esta información se emplea una sola vez para notificar de forma automática al responsable de la mascota que su perfil ha sido visualizado.<br><br>
+        <strong>Ninguno de estos datos se almacena ni se comparte con terceros.</strong> Su uso es puntual, inmediato y exclusivamente con fines de notificación dentro del ecosistema de esta herramienta solidaria.<br><br>
+        Agradecemos tu colaboración para fortalecer esta red de apoyo y cuidado animal. 💖🐶🐱
       </p>
-
-      <div style="margin-top: 15px;">
-        <button onclick="aceptarConsentimiento()" style="padding: 10px 20px; margin-right: 10px;">✅ Acepto</button>
-        <button onclick="rechazarConsentimiento()" style="padding: 10px 20px;">❌ Rechazo</button>
+      <div style="margin-top: 25px;">
+        <button onclick="aceptarConsentimiento()" style="padding: 10px 25px; margin-right: 10px;">✅ Acepto</button>
+        <button onclick="rechazarConsentimiento()" style="padding: 10px 25px;">❌ Rechazo</button>
       </div>
     </div>
   </div>
@@ -148,7 +149,7 @@
       <p><strong>Teléfono:</strong> <span id="telefono-dueno"></span></p>
       <p><strong>Correo electrónico:</strong> <span id="correo-dueno"></span></p>
       <p><strong>Mensaje del dueño:</strong> <span id="mensaje-dueno"></span></p>
-      <button id="btn-contactar">Contactar con el dueño</button>
+      <button id="btn-contactar" type="button">Contactar con el dueño</button>
     </section>
   </main>
 
@@ -164,12 +165,18 @@
 
   <!-- JS módulos -->
   <script type="module" src="js/main.js"></script>
-  <script type="module" src="js/detector.js"></script>
-  <script type="module" src="js/ubicacion.js"></script>
+  <!-- Eliminado: detector.js y ubicacion.js para evitar redundancia -->
+  <script type="module" src="js/perfil-consentimiento.js"></script>
   <script type="module">
-    import { aceptarConsentimiento, rechazarConsentimiento } from "./js/notificacion.js";
-    window.aceptarConsentimiento = aceptarConsentimiento;
-    window.rechazarConsentimiento = rechazarConsentimiento;
+    import { recolectarDatos } from "./js/perfil-consentimiento.js";
+    window.aceptarConsentimiento = () => {
+      document.getElementById('consentimiento-modal').style.display = 'none';
+      recolectarDatos(true);
+    };
+    window.rechazarConsentimiento = () => {
+      document.getElementById('consentimiento-modal').style.display = 'none';
+      recolectarDatos(false);
+    };
   </script>
 </body>
 </html>

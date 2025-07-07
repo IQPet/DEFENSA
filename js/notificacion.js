@@ -1,4 +1,6 @@
-// js/notificacion.js
+import UAParser from "https://cdn.jsdelivr.net/npm/ua-parser-js@1.0.2/src/ua-parser.min.js";
+
+// ✅ Obtener IP pública
 async function obtenerIP() {
   try {
     const res = await fetch("https://api.ipify.org?format=json");
@@ -10,6 +12,7 @@ async function obtenerIP() {
   }
 }
 
+// ✅ Obtener ubicación geográfica con timeout
 function obtenerUbicacion() {
   return new Promise((resolve) => {
     if (navigator.geolocation) {
@@ -28,12 +31,22 @@ function obtenerUbicacion() {
   });
 }
 
-export async function aceptarConsentimiento() {
-  document.getElementById("consent-modal").style.display = "none";
+// ✅ Obtener ID desde la URL (?id=)
+function obtenerIdMascota() {
+  const url = new URL(window.location.href);
+  const id = url.searchParams.get("id");
+  return parseInt(id) || null;
+}
 
+// ✅ Aceptar consentimiento
+export async function aceptarConsentimiento() {
+  document.getElementById("consentimiento-modal").style.display = "none";
+
+  const fechaHora = new Date().toLocaleString();
   const ubicacion = await obtenerUbicacion();
   const ip = await obtenerIP();
-  const dispositivo = navigator.userAgent;
+  const parser = new UAParser();
+  const dispositivo = `${parser.getOS().name} ${parser.getOS().version} · ${parser.getBrowser().name} ${parser.getBrowser().version}`;
   const mascotaId = obtenerIdMascota();
 
   // Mostrar en pantalla
@@ -53,7 +66,8 @@ export async function aceptarConsentimiento() {
         ubicacion,
         ip,
         dispositivo,
-        mensajePersonalizado: "¡Alguien visualizó el perfil de tu mascota!"
+        fechaHora,
+        mensajePersonalizado: "¡Alguien visualizó el perfil de tu mascota!",
       }),
     });
 
@@ -68,16 +82,9 @@ export async function aceptarConsentimiento() {
   }
 }
 
+// ✅ Rechazar consentimiento
 export function rechazarConsentimiento() {
-  document.getElementById("consent-modal").style.display = "none";
+  document.getElementById("consentimiento-modal").style.display = "none";
   document.getElementById("aviso-legal").textContent =
     "No se recolectaron datos porque no se aceptó el consentimiento.";
 }
-
-// ✅ Obtener el ID desde la URL (?id=)
-function obtenerIdMascota() {
-  const url = new URL(window.location.href);
-  const id = url.searchParams.get("id");
-  return parseInt(id) || 1;
-}
-
