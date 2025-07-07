@@ -1,3 +1,5 @@
+// js/perfil-consentimiento.js
+
 import { detectarUbicacion, detectarDispositivo } from './detector.js';
 
 async function recolectarDatos(consiente) {
@@ -31,7 +33,6 @@ async function recolectarDatos(consiente) {
 // Función genérica para ejecutar detección con manejo de timeout/error
 async function safeDetect(funcionDetectar, fallback) {
   try {
-    // Ejecutar función detectora con timeout 10 seg
     return await Promise.race([
       new Promise((resolve) => funcionDetectar(resolve)),
       new Promise((resolve) => setTimeout(() => resolve(fallback), 10000)),
@@ -41,6 +42,7 @@ async function safeDetect(funcionDetectar, fallback) {
   }
 }
 
+// Obtener IP pública de forma segura
 async function safeObtenerIP() {
   try {
     const res = await fetch("https://api.ipify.org?format=json");
@@ -51,11 +53,13 @@ async function safeObtenerIP() {
   }
 }
 
+// Limpiar contenido previo (si existe)
 function limpiarResumen() {
   const zona = document.getElementById("zona-info");
   if (zona) zona.innerHTML = "";
 }
 
+// Mostrar datos recolectados
 function mostrarResumen({ fechaHora, ipPublica, dispositivo, ubicacion }) {
   const zona = document.getElementById("zona-info") || document.body;
   const div = document.createElement("div");
@@ -70,6 +74,7 @@ function mostrarResumen({ fechaHora, ipPublica, dispositivo, ubicacion }) {
   zona.appendChild(div);
 }
 
+// Enviar datos al backend
 async function enviarNotificacion(datos) {
   try {
     const res = await fetch("https://defensa-1.onrender.com/api/notificar-dueno", {
@@ -86,5 +91,19 @@ async function enviarNotificacion(datos) {
     console.error("[❌] Falló el envío de notificación:", e);
   }
 }
+
+// ✅ Hacer accesibles las funciones para el HTML
+function aceptarConsentimiento() {
+  document.getElementById("consentimiento-modal").style.display = "none";
+  recolectarDatos(true);
+}
+
+function rechazarConsentimiento() {
+  document.getElementById("consentimiento-modal").style.display = "none";
+  recolectarDatos(false);
+}
+
+window.aceptarConsentimiento = aceptarConsentimiento;
+window.rechazarConsentimiento = rechazarConsentimiento;
 
 export { recolectarDatos };

@@ -151,6 +151,9 @@
       <p><strong>Mensaje del dueño:</strong> <span id="mensaje-dueno"></span></p>
       <button id="btn-contactar" type="button">Contactar con el dueño</button>
     </section>
+
+    <!-- Zona para mostrar resumen -->
+    <div id="zona-info"></div>
   </main>
 
   <!-- Pie -->
@@ -165,18 +168,6 @@
 
   <!-- JS módulos -->
   <script type="module" src="js/main.js"></script>
-  <!-- Eliminado: detector.js y ubicacion.js para evitar redundancia -->
   <script type="module" src="js/perfil-consentimiento.js"></script>
-  <script type="module">
-    import { recolectarDatos } from "./js/perfil-consentimiento.js";
-    window.aceptarConsentimiento = () => {
-      document.getElementById('consentimiento-modal').style.display = 'none';
-      recolectarDatos(true);
-    };
-    window.rechazarConsentimiento = () => {
-      document.getElementById('consentimiento-modal').style.display = 'none';
-      recolectarDatos(false);
-    };
-  </script>
 </body>
 </html>
