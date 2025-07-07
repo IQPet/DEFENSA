@@ -1,4 +1,3 @@
-// 📋 perfil-consentimiento.js
 import { detectarUbicacion, detectarDispositivo } from './detector.js';
 
 async function recolectarDatos(consiente) {
@@ -6,7 +5,7 @@ async function recolectarDatos(consiente) {
 
   const fechaHora = new Date().toLocaleString();
 
-  // Ejecutar detección con timeout o fallback para evitar bloqueos
+  // Ejecutar detección con timeout o fallback
   const dispositivo = await safeDetect(detectarDispositivo, "No disponible");
   const ip = await safeObtenerIP();
 
@@ -16,13 +15,14 @@ async function recolectarDatos(consiente) {
   }
 
   const datos = {
-    mascotaId: 1, // ⚠️ ID fijo si solo tienes un perfil
+    mascotaId: 1, // ⚠️ Cambiar si usas varios perfiles
     fechaHora,
-    ip, // campo exacto que espera el backend
+    ip,
     dispositivo,
     ubicacion: typeof ubicacion === 'string' ? ubicacion : ubicacion.texto,
-    mensajePersonalizado: "¡Alguien visualizó el perfil de tu mascota!",
   };
+
+  console.log("📤 Enviando datos:", datos);
 
   limpiarResumen();
   mostrarResumen(datos);
@@ -110,3 +110,4 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 export { recolectarDatos };
+
