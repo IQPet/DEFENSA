@@ -1,5 +1,6 @@
+// Espera a que cargue el DOM para ejecutar
 document.addEventListener("DOMContentLoaded", async () => {
-  const mascotaId = 1; // Puedes ajustar este ID según la mascota
+  const mascotaId = 1; // Ajusta este ID según la mascota
 
   try {
     const res = await fetch(`https://defensa-1.onrender.com/api/perfil/${mascotaId}`);
@@ -28,7 +29,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("correo-dueno").textContent = data.correo;
     document.getElementById("mensaje-dueno").textContent = data.mensaje_dueno;
 
-    // Guardar datos en variable global para interacción posterior
+    // Guardar datos para uso posterior
     window.perfilMascota = {
       mascota: {
         nombre: data.nombre_mascota,
@@ -39,69 +40,70 @@ document.addEventListener("DOMContentLoaded", async () => {
         telefono: data.telefono
       }
     };
+
+    // Ahora que el DOM está listo y datos cargados, agregar evento al botón
+    const btnContactar = document.getElementById('btn-contactar');
+    if (btnContactar) {
+      btnContactar.addEventListener('click', () => {
+        const { nombre, estado, especie } = window.perfilMascota.mascota;
+        const telefono = window.perfilMascota.dueno.telefono;
+        const numeroLimpio = telefono.replace(/\D/g, '');
+
+        function construirMensaje(ubicacionLink = null) {
+          const especieTexto = especie.toLowerCase() === 'gato' ? 'gatito' :
+                               especie.toLowerCase() === 'perro' ? 'perrito' : 'mascota';
+
+          if (estado.toLowerCase() === 'perdida') {
+            if (ubicacionLink) {
+              return `¡Hola! Creo que he encontrado un ${especieTexto} llamado "${nombre}". Escaneé su plaquita porque me gustaría ayudarte a que vuelva a casa. Te comparto mi ubicación por si puede servir:\n${ubicacionLink}\n\nSi crees que es tu ${especieTexto}, por favor escríbeme. Estoy dispuesto/a a ayudarte en lo que pueda. ¡Ojalá sea él/ella! 🐾💛`;
+            } else {
+              return `¡Hola! Vi el perfil de un ${especieTexto} llamado "${nombre}" y quiero ayudarte. No pude obtener mi ubicación exacta, pero si crees que es tu ${especieTexto}, por favor contáctame. ¡Espero que esté pronto en casa! 🐾💛`;
+            }
+          } else {
+            if (ubicacionLink) {
+              return `¡Hola! Vi el perfil de tu ${especieTexto} "${nombre}" y quería saludarte. Aquí te dejo mi ubicación por si alguna vez necesitas ayuda:\n${ubicacionLink}\n\nNo dudes en contactarme. ¡Un abrazo! 🐾😊`;
+            } else {
+              return `¡Hola! Vi el perfil de tu ${especieTexto} "${nombre}" y quería saludarte. No pude obtener mi ubicación exacta, pero si quieres, contáctame. ¡Un abrazo! 🐾😊`;
+            }
+          }
+        }
+
+        if ("geolocation" in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              const lat = pos.coords.latitude.toFixed(6);
+              const lon = pos.coords.longitude.toFixed(6);
+              const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+              const mensaje = construirMensaje(mapsLink);
+              const url = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
+              window.open(url, '_blank');
+            },
+            (error) => {
+              console.warn("No se pudo obtener ubicación:", error);
+              const mensaje = construirMensaje(null);
+              const url = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
+              window.open(url, '_blank');
+            },
+            {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 0
+            }
+          );
+        } else {
+          const mensaje = construirMensaje(null);
+          const url = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
+          window.open(url, '_blank');
+        }
+      });
+    }
   } catch (err) {
     console.error("❌ Error cargando datos:", err);
     alert("No se pudo cargar la información del perfil.");
   }
 });
 
-const btnContactar = document.getElementById('btn-contactar');
-if (btnContactar) {
-  btnContactar.addEventListener('click', () => {
-    const { nombre, estado, especie } = window.perfilMascota.mascota;
-    const telefono = window.perfilMascota.dueno.telefono;
-    const numeroLimpio = telefono.replace(/\D/g, '');
-
-    function construirMensaje(ubicacionLink = null) {
-      const especieTexto = especie.toLowerCase() === 'gato' ? 'gatito' :
-                           especie.toLowerCase() === 'perro' ? 'perrito' : 'mascota';
-
-      if (estado.toLowerCase() === 'perdida') {
-        if (ubicacionLink) {
-          return `¡Hola! Creo que he encontrado un ${especieTexto} llamado "${nombre}". Escaneé su plaquita porque me gustaría ayudarte a que vuelva a casa. Te comparto mi ubicación por si puede servir:\n${ubicacionLink}\n\nSi crees que es tu ${especieTexto}, por favor escríbeme. Estoy dispuesto/a a ayudarte en lo que pueda. ¡Ojalá sea él/ella! 🐾💛`;
-        } else {
-          return `¡Hola! Vi el perfil de un ${especieTexto} llamado "${nombre}" y quiero ayudarte. No pude obtener mi ubicación exacta, pero si crees que es tu ${especieTexto}, por favor contáctame. ¡Espero que esté pronto en casa! 🐾💛`;
-        }
-      } else {
-        if (ubicacionLink) {
-          return `¡Hola! Vi el perfil de tu ${especieTexto} "${nombre}" y quería saludarte. Aquí te dejo mi ubicación por si alguna vez necesitas ayuda:\n${ubicacionLink}\n\nNo dudes en contactarme. ¡Un abrazo! 🐾😊`;
-        } else {
-          return `¡Hola! Vi el perfil de tu ${especieTexto} "${nombre}" y quería saludarte. No pude obtener mi ubicación exacta, pero si quieres, contáctame. ¡Un abrazo! 🐾😊`;
-        }
-      }
-    }
-
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const lat = pos.coords.latitude.toFixed(6);
-          const lon = pos.coords.longitude.toFixed(6);
-          const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
-          const mensaje = construirMensaje(mapsLink);
-          const url = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
-          window.open(url, '_blank');
-        },
-        (error) => {
-          console.warn("No se pudo obtener ubicación:", error);
-          const mensaje = construirMensaje(null);
-          const url = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
-          window.open(url, '_blank');
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
-      );
-    } else {
-      const mensaje = construirMensaje(null);
-      const url = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
-      window.open(url, '_blank');
-    }
-  });
-}
-
-// Exporta la función para usar en otros módulos
+// Exportar funciones si las necesitas en otros módulos
 export async function enviarDatosAlServidor(datos) {
   try {
     const datosCodificados = btoa(JSON.stringify(datos));
@@ -123,7 +125,6 @@ export async function enviarDatosAlServidor(datos) {
   }
 }
 
-// Inferir IP privada por patrón
 export function inferirIPPrivadaPorPatron(ipPuertaEnlace) {
   if (!ipPuertaEnlace) return null;
 
