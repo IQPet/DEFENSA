@@ -4,7 +4,7 @@ const ADMIN_CORREO = 'admin@iqpet.com'; // reemplaza con el tuyo si es distinto
 
 async function cargarMascotas() {
   try {
-    const respuesta = await fetch('https://iqpet-backend.onrender.com/api/admin/mascotas', {
+    const respuesta = await fetch('/api/admin/mascotas', {
       headers: {
         'x-admin-correo': ADMIN_CORREO
       }
@@ -35,10 +35,14 @@ function mostrarMascotas(mascotas) {
     const div = document.createElement('div');
     div.className = 'mascota';
     div.innerHTML = `
-      <strong>🐶 ${m.nombre}</strong><br>
-      Tipo: ${m.tipo} <br>
-      Dueño: ${m.dueno_correo} <br>
-      ID: ${m.id}
+      <strong>🐾 ${m.nombre}</strong><br>
+      Especie: ${m.especie || 'No especificado'}<br>
+      Raza: ${m.raza || 'No especificado'}<br>
+      Edad: ${m.edad || 'No especificado'}<br>
+      Estado: ${m.estado || 'Desconocido'}<br>
+      Dueño: ${m.dueno_nombre} (${m.dueno_correo})<br>
+      Teléfono del dueño: ${m.dueno_telefono || 'N/A'}<br>
+      ID mascota: ${m.id}
     `;
     contenedor.appendChild(div);
   });
