@@ -15,8 +15,11 @@ export function detectarUbicacion(callback) {
           lon: longitude
         };
         console.log("✅ Ubicación exacta (GPS):", ubicacion);
+        console.log("📡 GPS activado, Google podrá usar redes WiFi automáticamente."); // ✅ añadido
+
         const status = document.getElementById("ubicacion-status");
         if (status) status.textContent = "📍 Ubicación registrada: ✓";
+
         callback(ubicacion);
       },
       async () => {
