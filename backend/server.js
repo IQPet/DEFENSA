@@ -7,6 +7,8 @@ import path from 'path';
 import multer from 'multer';
 import { fileURLToPath } from 'url';
 import fetch from 'node-fetch';
+import geoRouter from './routes/geolocalizacion.js';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,6 +42,9 @@ app.get('/', (req, res) => {
 
 // Servir imágenes estáticas backend
 app.use('/imagenes', express.static(path.join(__dirname, 'imagenes')));
+
+app.use('/api', geoRouter);
+
 
 // Configurar multer para subir imágenes
 const storage = multer.diskStorage({
