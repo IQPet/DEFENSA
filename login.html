@@ -142,7 +142,8 @@
         const res = await fetch('https://iqpet-backend.onrender.com/api/validar-dueno', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ correo, clave })
+          body: JSON.stringify({ correo, clave }),
+          credentials: 'include' // 🔒 Necesario para CORS en Render
         });
 
         const data = await res.json();

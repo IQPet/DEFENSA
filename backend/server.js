@@ -28,16 +28,24 @@ console.log('🧪 DEBUG - WHATSAPP_TOKEN:', process.env.WHATSAPP_TOKEN ? '****' 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// ✅ Permitir solo tu frontend (Render dominio)
+// ✅ CORS configurado bien para permitir el frontend
 const corsOptions = {
-  origin: 'https://defensa-1.onrender.com', // tu frontend
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  origin: 'https://defensa-1.onrender.com', // tu dominio frontend
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
-// CORS
-app.use(cors()); // 🔓 Permitir todos los orígenes temporalmente
-app.options('*', cors(corsOptions)); // ✅ Esto habilita respuestas automáticas a OPTIONS
+// 🔧 Aplicar CORS correctamente a TODAS las rutas
+app.use(cors(corsOptions));
+app.set('trust proxy', 1); // necesario en Render para manejar cookies y headers correctamente
+
+// 🔧 Asegura respuesta correcta a preflight (OPTIONS)
+app.options('*', cors(corsOptions), (req, res) => {
+  res.sendStatus(204);
+});
+
+
 app.use(express.json());
 
 // Servir archivos estáticos del frontend (perfil.html y otros en la raíz)
@@ -238,7 +246,10 @@ app.get('/api/perfil/:id', async (req, res) => {
   }
 });
 
-app.options('/api/validar-dueno', cors(corsOptions));
+// ⚠️ Agrega esto justo ANTES del app.post('/api/validar-dueno')
+app.options('/api/validar-dueno', cors(corsOptions), (req, res) => {
+  res.sendStatus(204); // respuesta vacía pero válida
+});
 // 🔐 Validar credenciales del dueño
 app.post('/api/validar-dueno', async (req, res) => {
   const { correo, clave } = req.body;
