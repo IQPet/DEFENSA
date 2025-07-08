@@ -1,4 +1,6 @@
 import express from 'express';
+import fetch from 'node-fetch';
+
 const router = express.Router();
 
 router.post('/geolocalizar-por-ip', async (req, res) => {
