@@ -27,6 +27,7 @@ console.log('🧪 DEBUG - WHATSAPP_TOKEN:', process.env.WHATSAPP_TOKEN ? '****' 
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
 // ✅ Permitir solo tu frontend (Render dominio)
 const corsOptions = {
   origin: 'https://defensa-1.onrender.com', // tu frontend
@@ -35,7 +36,7 @@ const corsOptions = {
 };
 
 // CORS
-app.use(cors(corsOptions));
+app.use(cors()); // 🔓 Permitir todos los orígenes temporalmente
 app.options('*', cors(corsOptions)); // ✅ Esto habilita respuestas automáticas a OPTIONS
 app.use(express.json());
 
