@@ -197,6 +197,7 @@ ${linkMapa ? `🌎 Ver en mapa: ${linkMapa}` : ''}
 });
 
 // 🔍 Obtener datos del perfil
+console.log('Definiendo ruta GET /api/perfil/:id');
 app.get('/api/perfil/:id', async (req, res) => {
   const mascotaId = req.params.id;
 
@@ -269,6 +270,7 @@ app.post('/api/validar-dueno', async (req, res) => {
 });
 
 // ✏️ Actualizar perfil
+console.log('Definiendo ruta PUT /api/editar-perfil/:id');
 app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
   const mascotaId = req.params.id;
   const {
