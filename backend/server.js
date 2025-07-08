@@ -342,6 +342,8 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
   }
 });
 
+console.log("🛠️ Versión corregida sin path-to-regexp directa");
+
 // 🚀 Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor backend escuchando en puerto ${PORT}`);
