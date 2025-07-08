@@ -8,6 +8,8 @@ import multer from 'multer';
 import { fileURLToPath } from 'url';
 import fetch from 'node-fetch';
 import geoRouter from './routes/geolocalizacion.js';
+import adminMascotasRoutes from './routes/adminMascotas.js';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -60,6 +62,7 @@ app.get('/', (req, res) => {
 app.use('/imagenes', express.static(path.join(__dirname, 'imagenes')));
 
 app.use('/api', geoRouter);
+app.use('/api/admin', adminMascotasRoutes);
 
 
 // Configurar multer para subir imágenes
