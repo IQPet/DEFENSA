@@ -37,6 +37,20 @@ const corsOptions = {
 app.use(cors(corsOptions));           // ✅ Habilitar CORS para todas las rutas
 app.use(express.json());              // 👇 Luego el JSON parser
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "https://defensa-1.onrender.com");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
+
+
 // Servir archivos estáticos del frontend (perfil.html y otros en la raíz)
 app.use(express.static(rootPath));
 
