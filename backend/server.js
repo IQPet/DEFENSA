@@ -33,8 +33,11 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 };
-app.use(cors(corsOptions)); // ✅ Usa las opciones que creamos arriba
-app.use(express.json());
+
+app.use(cors(corsOptions));           // ✅ Habilitar CORS para todas las rutas
+app.options('*', cors(corsOptions));  // ✅ Responder solicitudes OPTIONS (preflight)
+app.use(express.json());              // 👇 Luego el JSON parser
+
 
 // Servir archivos estáticos del frontend (perfil.html y otros en la raíz)
 app.use(express.static(rootPath));
