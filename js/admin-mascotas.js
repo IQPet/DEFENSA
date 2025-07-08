@@ -1,6 +1,6 @@
 // js/admin-mascotas.js
 
-const ADMIN_CORREO = 'admin@iqpet.com'; // reemplaza con el tuyo si es distinto
+const ADMIN_CORREO = 'admin@iqpet.com'; // reemplaza con tu correo si es diferente
 
 async function cargarMascotas() {
   try {
@@ -34,15 +34,23 @@ function mostrarMascotas(mascotas) {
   mascotas.forEach(m => {
     const div = document.createElement('div');
     div.className = 'mascota';
+
+    // Generar la URL del perfil según ID
+    let perfilURL = 'https://defensa-1.onrender.com/perfil.html';
+    if (m.id !== 1) {
+      perfilURL += `?id=${m.id}`;
+    }
+
     div.innerHTML = `
       <strong>🐾 ${m.nombre}</strong><br>
       Especie: ${m.especie || 'No especificado'}<br>
       Raza: ${m.raza || 'No especificado'}<br>
       Edad: ${m.edad || 'No especificado'}<br>
       Estado: ${m.estado || 'Desconocido'}<br>
-      Dueño: ${m.dueno_nombre} (${m.dueno_correo})<br>
+      Dueño: ${m.dueno_nombre || 'Sin nombre'} (${m.dueno_correo})<br>
       Teléfono del dueño: ${m.dueno_telefono || 'N/A'}<br>
-      ID mascota: ${m.id}
+      ID mascota: ${m.id} <br>
+      <a href="${perfilURL}" target="_blank">🔗 Ver perfil público</a>
     `;
     contenedor.appendChild(div);
   });
