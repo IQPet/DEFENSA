@@ -27,8 +27,13 @@ console.log('🧪 DEBUG - WHATSAPP_TOKEN:', process.env.WHATSAPP_TOKEN ? '****' 
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-
-app.use(cors());
+// ✅ Permitir solo tu frontend (Render dominio)
+const corsOptions = {
+  origin: 'https://defensa-1.onrender.com', // tu frontend
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+};
+app.use(cors(corsOptions)); // ✅ Usa las opciones que creamos arriba
 app.use(express.json());
 
 // Servir archivos estáticos del frontend (perfil.html y otros en la raíz)
