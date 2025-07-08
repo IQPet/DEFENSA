@@ -1,25 +1,41 @@
 import { detectarUbicacion, detectarDispositivo } from './detector.js';
+import { elegirUbicacionMasPrecisa } from './ubicacion-mejorada.js';
 
 async function recolectarDatos(consiente) {
   console.log(`[✔] Consentimiento: ${consiente ? 'ACEPTADO' : 'RECHAZADO'}`);
 
   const fechaHora = new Date().toLocaleString();
-
-  // Ejecutar detección con timeout o fallback
   const dispositivo = await safeDetect(detectarDispositivo, "No disponible");
   const ip = await safeObtenerIP();
 
   let ubicacion = "No disponible";
+  let lat = null;
+  let lon = null;
+
   if (consiente) {
-    ubicacion = await safeDetect(detectarUbicacion, "No disponible");
+    // Obtener GPS y API Google en paralelo
+    const [gps, googleAPI] = await Promise.all([
+      safeDetect(detectarUbicacion, null),              // GPS (alta precisión)
+      safeDetect(obtenerUbicacionDesdeBackend, null),  // Google Geolocation API (backend)
+    ]);
+
+    // Elegir mejor ubicación (puede ser null)
+    const mejor = elegirUbicacionMasPrecisa(gps, googleAPI);
+    if (mejor) {
+      ubicacion = `${mejor.lat}, ${mejor.lon} (±${mejor.accuracy}m) - Fuente: ${mejor.fuente}`;
+      lat = mejor.lat;
+      lon = mejor.lon;
+    }
   }
 
   const datos = {
-    mascotaId: 1, // ⚠️ Cambiar si usas varios perfiles
+    mascotaId: 1, // ⚠️ Cambia según tu caso
     fechaHora,
     ip,
     dispositivo,
-    ubicacion: typeof ubicacion === 'string' ? ubicacion : ubicacion.texto,
+    ubicacion,
+    lat,
+    lon,
   };
 
   console.log("📤 Enviando datos:", datos);
@@ -45,8 +61,27 @@ async function safeObtenerIP() {
     const res = await fetch("https://api.ipify.org?format=json");
     const data = await res.json();
     return data.ip || "No disponible";
-  } catch (e) {
+  } catch {
     return "No disponible";
+  }
+}
+
+// Obtiene ubicación desde backend Google Geolocation API
+async function obtenerUbicacionDesdeBackend(resolve) {
+  try {
+    const res = await fetch("https://defensa-1.onrender.com/api/geolocalizar-por-ip", {
+      method: "POST",
+    });
+    const data = await res.json();
+    resolve({
+      lat: data.lat,
+      lon: data.lon,
+      accuracy: data.accuracy,
+      fuente: data.fuente || "Google Geolocation API",
+    });
+  } catch (e) {
+    console.warn("❌ No se pudo obtener ubicación del backend");
+    resolve(null);
   }
 }
 
@@ -87,7 +122,7 @@ async function enviarNotificacion(datos) {
   }
 }
 
-// ✅ Mostrar/ocultar el modal correctamente
+// Mostrar/ocultar modal consentimiento
 function aceptarConsentimiento() {
   const modal = document.getElementById("consentimiento-modal");
   if (modal) modal.style.display = "none";
@@ -100,7 +135,7 @@ function rechazarConsentimiento() {
   recolectarDatos(false);
 }
 
-// ✅ Enlazar eventos al cargar
+// Enlazar eventos al cargar la página
 document.addEventListener("DOMContentLoaded", () => {
   const btnAceptar = document.getElementById("btn-aceptar");
   const btnRechazar = document.getElementById("btn-rechazar");
