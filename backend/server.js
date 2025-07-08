@@ -251,7 +251,7 @@ app.options('/api/validar-dueno', cors(corsOptions), (req, res) => {
   res.sendStatus(204); // respuesta vacía pero válida
 });
 // 🔐 Validar credenciales del dueño
-app.post('/api/validar-dueno', async (req, res) => {
+app.post('/api/validar-dueno', cors(corsOptions), async (req, res) => {
   const { correo, clave } = req.body;
 
   if (!correo || !clave) {
