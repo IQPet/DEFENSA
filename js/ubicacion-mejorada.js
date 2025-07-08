@@ -1,6 +1,6 @@
 // Analiza y elige la ubicación más precisa entre dos fuentes
 export function elegirUbicacionMasPrecisa(gps, api) {
-  // Validar si la ubicación es válida antes de parsearla
+  // Valida y mejora los datos de ubicación
   const parse = (loc) => {
     if (!loc || typeof loc.lat !== 'number' || typeof loc.lon !== 'number') {
       return null;
@@ -10,14 +10,18 @@ export function elegirUbicacionMasPrecisa(gps, api) {
       lat: parseFloat(loc.lat),
       lon: parseFloat(loc.lon),
       accuracy: parseFloat(loc.accuracy) || 999999, // muy impreciso si no viene
-      fuente: loc.fuente || 'desconocida',
+      fuente:
+        loc.fuente ||
+        (loc.tipo === "GPS" ? "GPS" :
+         loc.tipo === "IP" ? "IP geolocation" :
+         "Google Geolocation API"),
     };
   };
 
   const gpsData = parse(gps);
   const apiData = parse(api);
 
-  // Caso ideal: ambas son válidas
+  // Caso ideal: ambas son válidas → elegir la más precisa
   if (gpsData && apiData) {
     return gpsData.accuracy <= apiData.accuracy ? gpsData : apiData;
   }

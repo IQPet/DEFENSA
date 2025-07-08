@@ -21,19 +21,19 @@ async function recolectarDatos(consiente) {
     const mejor = elegirUbicacionMasPrecisa(gps, googleAPI);
 
     if (mejor) {
+      // 💡 Reemplazar fuente si es "desconocida" pero los datos son válidos
+      if (mejor.fuente === "desconocida" && mejor.lat && mejor.lon) {
+        mejor.fuente = "Sistema híbrido";
+      }
+
       ubicacion = `${mejor.lat}, ${mejor.lon} (±${mejor.accuracy}m) - Fuente: ${mejor.fuente}`;
       lat = mejor.lat;
       lon = mejor.lon;
 
-      // 🧩 ETAPA 2: Alerta si precisión baja
-      if (mejor.accuracy && mejor.accuracy > 50000) {
-        alert("⚠️ No se pudo obtener una ubicación precisa. Por favor activa el GPS o conecta a una red WiFi.");
-      }
-
-      // 🧩 ETAPA 3: Mostrar aviso en pantalla
+      // ✅ Si precisión es baja, no mostrar alerta visible
       const aviso = document.getElementById("ubicacion-aviso");
       if (aviso && mejor.accuracy > 50000) {
-        aviso.textContent = "⚠️ Ubicación baja precisión. Activa GPS o WiFi para mejorar.";
+        aviso.textContent = ""; // O puedes colocar algo más neutro si deseas
       }
     }
   }
@@ -88,7 +88,7 @@ async function obtenerUbicacionDesdeBackend(resolve) {
     const wifiAccessPoints = await obtenerRedesWifi();
 
     const payload = {
-      considerIp: wifiAccessPoints.length === 0, // Solo usar IP si no hay WiFi
+      considerIp: wifiAccessPoints.length === 0,
       wifiAccessPoints: wifiAccessPoints.length > 0 ? wifiAccessPoints : undefined,
     };
 
@@ -112,8 +112,7 @@ async function obtenerUbicacionDesdeBackend(resolve) {
   }
 }
 
-// ⚠️ Nota: esta función no obtiene directamente los BSSID, pero al activar GPS en móviles Android,
-// Chrome los envía internamente a Google para mejorar la precisión.
+// 🔍 Simula activación del GPS para que Google pueda usar redes WiFi
 async function obtenerRedesWifi() {
   try {
     if (!navigator.geolocation) return [];
@@ -125,10 +124,10 @@ async function obtenerRedesWifi() {
       navigator.geolocation.getCurrentPosition(
         () => {
           console.log("📡 GPS activado, Google podrá usar redes WiFi automáticamente.");
-          resolve([]); // No accedemos a BSSIDs directamente desde JS
+          resolve([]);
         },
         (error) => {
-          console.warn("❌ Error al obtener posición para mejorar con WiFi:", error);
+          console.warn("❌ Error al activar GPS para mejorar con WiFi:", error);
           resolve([]);
         },
         { enableHighAccuracy: true, timeout: 10000 }
@@ -197,4 +196,3 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 export { recolectarDatos };
-
