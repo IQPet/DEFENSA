@@ -1,4 +1,3 @@
-// backend/routes/geolocalizacion.js
 import express from 'express';
 const router = express.Router();
 
@@ -9,12 +8,23 @@ router.post('/geolocalizar-por-ip', async (req, res) => {
       return res.status(500).json({ error: 'Falta GOOGLE_GEO_API_KEY en .env' });
     }
 
+    // 🔍 Parámetros recibidos desde el frontend
+    const considerIp = req.body.considerIp !== false;
+    const wifiAccessPoints = req.body.wifiAccessPoints || [];
+
+    // 📡 Construimos payload
+    const payload = { considerIp };
+    if (wifiAccessPoints.length > 0) {
+      payload.wifiAccessPoints = wifiAccessPoints;
+      console.log(`📶 Recibidas ${wifiAccessPoints.length} redes WiFi para mejorar precisión.`);
+    }
+
     const url = `https://www.googleapis.com/geolocation/v1/geolocate?key=${GOOGLE_API_KEY}`;
 
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ considerIp: true }),
+      body: JSON.stringify(payload),
     });
 
     const data = await response.json();
@@ -23,10 +33,20 @@ router.post('/geolocalizar-por-ip', async (req, res) => {
       return res.status(500).json({ error: data.error.message });
     }
 
+    const lat = data.location.lat;
+    const lon = data.location.lng;
+    const accuracy = data.accuracy;
+
+    // 🧠 Verificación de calidad de ubicación
+    console.log(`📍 Ubicación estimada: ${lat}, ${lon} (±${accuracy}m) - Fuente: Google Geolocation API`);
+    if (accuracy > 50000) {
+      console.warn('⚠️ La precisión es muy baja (> 50km). Es probable que solo se haya usado la IP.');
+    }
+
     return res.json({
-      lat: data.location.lat,
-      lon: data.location.lng,
-      accuracy: data.accuracy,
+      lat,
+      lon,
+      accuracy,
       fuente: "Google Geolocation API",
     });
 
@@ -37,3 +57,4 @@ router.post('/geolocalizar-por-ip', async (req, res) => {
 });
 
 export default router;
+

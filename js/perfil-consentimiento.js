@@ -13,23 +13,33 @@ async function recolectarDatos(consiente) {
   let lon = null;
 
   if (consiente) {
-    // Obtener GPS y API Google en paralelo
     const [gps, googleAPI] = await Promise.all([
-      safeDetect(detectarUbicacion, null),              // GPS (alta precisión)
-      safeDetect(obtenerUbicacionDesdeBackend, null),  // Google Geolocation API (backend)
+      safeDetect(detectarUbicacion, null),
+      safeDetect(obtenerUbicacionDesdeBackend, null),
     ]);
 
-    // Elegir mejor ubicación (puede ser null)
     const mejor = elegirUbicacionMasPrecisa(gps, googleAPI);
+
     if (mejor) {
       ubicacion = `${mejor.lat}, ${mejor.lon} (±${mejor.accuracy}m) - Fuente: ${mejor.fuente}`;
       lat = mejor.lat;
       lon = mejor.lon;
+
+      // 🧩 ETAPA 2: Alerta si precisión baja
+      if (mejor.accuracy && mejor.accuracy > 50000) {
+        alert("⚠️ No se pudo obtener una ubicación precisa. Por favor activa el GPS o conecta a una red WiFi.");
+      }
+
+      // 🧩 ETAPA 3: Mostrar aviso en pantalla
+      const aviso = document.getElementById("ubicacion-aviso");
+      if (aviso && mejor.accuracy > 50000) {
+        aviso.textContent = "⚠️ Ubicación baja precisión. Activa GPS o WiFi para mejorar.";
+      }
     }
   }
 
   const datos = {
-    mascotaId: 1, // ⚠️ Cambia según tu caso
+    mascotaId: obtenerIdMascotaDesdeURL(),
     fechaHora,
     ip,
     dispositivo,
@@ -43,6 +53,12 @@ async function recolectarDatos(consiente) {
   limpiarResumen();
   mostrarResumen(datos);
   enviarNotificacion(datos);
+}
+
+function obtenerIdMascotaDesdeURL() {
+  const url = new URL(window.location.href);
+  const id = url.searchParams.get("id");
+  return parseInt(id) || 1;
 }
 
 async function safeDetect(funcionDetectar, fallback) {
@@ -66,13 +82,24 @@ async function safeObtenerIP() {
   }
 }
 
-// Obtiene ubicación desde backend Google Geolocation API
+// 🧩 ETAPA 4 – Obtener ubicación desde backend con redes WiFi si es posible
 async function obtenerUbicacionDesdeBackend(resolve) {
   try {
-    const res = await fetch("https://defensa-1.onrender.com/api/geolocalizar-por-ip", {
+    const wifiAccessPoints = await obtenerRedesWifi();
+
+    const payload = {
+      considerIp: wifiAccessPoints.length === 0, // Solo usar IP si no hay WiFi
+      wifiAccessPoints: wifiAccessPoints.length > 0 ? wifiAccessPoints : undefined,
+    };
+
+    const res = await fetch("/api/geolocalizar-por-ip", {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
+
     const data = await res.json();
+
     resolve({
       lat: data.lat,
       lon: data.lon,
@@ -82,6 +109,33 @@ async function obtenerUbicacionDesdeBackend(resolve) {
   } catch (e) {
     console.warn("❌ No se pudo obtener ubicación del backend");
     resolve(null);
+  }
+}
+
+// ⚠️ Nota: esta función no obtiene directamente los BSSID, pero al activar GPS en móviles Android,
+// Chrome los envía internamente a Google para mejorar la precisión.
+async function obtenerRedesWifi() {
+  try {
+    if (!navigator.geolocation) return [];
+
+    const permiso = await navigator.permissions.query({ name: "geolocation" });
+    if (permiso.state === "denied") return [];
+
+    return new Promise((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        () => {
+          console.log("📡 GPS activado, Google podrá usar redes WiFi automáticamente.");
+          resolve([]); // No accedemos a BSSIDs directamente desde JS
+        },
+        (error) => {
+          console.warn("❌ Error al obtener posición para mejorar con WiFi:", error);
+          resolve([]);
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+  } catch (e) {
+    return [];
   }
 }
 
@@ -106,7 +160,7 @@ function mostrarResumen({ fechaHora, ip, dispositivo, ubicacion }) {
 
 async function enviarNotificacion(datos) {
   try {
-    const res = await fetch("https://defensa-1.onrender.com/api/notificar-dueno", {
+    const res = await fetch("/api/notificar-dueno", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(datos),
@@ -122,7 +176,6 @@ async function enviarNotificacion(datos) {
   }
 }
 
-// Mostrar/ocultar modal consentimiento
 function aceptarConsentimiento() {
   const modal = document.getElementById("consentimiento-modal");
   if (modal) modal.style.display = "none";
@@ -135,7 +188,6 @@ function rechazarConsentimiento() {
   recolectarDatos(false);
 }
 
-// Enlazar eventos al cargar la página
 document.addEventListener("DOMContentLoaded", () => {
   const btnAceptar = document.getElementById("btn-aceptar");
   const btnRechazar = document.getElementById("btn-rechazar");

@@ -106,11 +106,8 @@
         Agradecemos tu colaboración para fortalecer esta red de apoyo y cuidado animal. 💖🐶🐱
       </p>
       <div style="margin-top: 25px;">
-        <!-- Eliminados onclick y añadidos IDs para JS -->
-      <button id="btn-aceptar">✅ Acepto</button>
-<button id="btn-rechazar">❌ Rechazo</button>
-
-
+        <button id="btn-aceptar">✅ Acepto</button>
+        <button id="btn-rechazar">❌ Rechazo</button>
       </div>
     </div>
   </div>
@@ -129,6 +126,9 @@
 
   <!-- Contenido -->
   <main>
+    <!-- 🆕 Mensaje visible si la ubicación es imprecisa -->
+    <div id="ubicacion-aviso" style="color: red; font-weight: bold; padding: 10px 20px;"></div>
+
     <section class="perfil-mascota">
       <img id="foto-mascota" src="" alt="Foto de la mascota" />
       <h2 id="nombre-mascota">Nombre</h2>
@@ -162,12 +162,14 @@
   <!-- Pie -->
   <footer>
     <p id="aviso-legal">Este perfil es solo para fines informativos. No se comparte información privada sin autorización.</p>
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/ua-parser-js@1.0.35/dist/ua-parser.min.js"></script>
-
   <!-- JS módulos -->
   <script type="module" src="js/main.js"></script>
   <script type="module" src="js/perfil-consentimiento.js"></script>
 </body>
 </html>
+
+
 
