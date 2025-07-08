@@ -34,22 +34,10 @@ const corsOptions = {
   credentials: true,
 };
 
-app.use(cors(corsOptions));           // ✅ Habilitar CORS para todas las rutas
-app.use(express.json());              // 👇 Luego el JSON parser
-
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://defensa-1.onrender.com");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.header("Access-Control-Allow-Credentials", "true");
-
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(204);
-  }
-
-  next();
-});
-
+// CORS
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // ✅ Esto habilita respuestas automáticas a OPTIONS
+app.use(express.json());
 
 // Servir archivos estáticos del frontend (perfil.html y otros en la raíz)
 app.use(express.static(rootPath));
@@ -100,6 +88,7 @@ transporter.verify((error, success) => {
     console.log('✅ Servidor SMTP verificado y listo.');
   }
 });
+
 
 app.post('/api/notificar-dueno', async (req, res) => {
   console.log("📥 [Paso 1] Solicitud recibida en /api/notificar-dueno");
@@ -247,6 +236,7 @@ app.get('/api/perfil/:id', async (req, res) => {
   }
 });
 
+app.options('/api/validar-dueno', cors(corsOptions));
 // 🔐 Validar credenciales del dueño
 app.post('/api/validar-dueno', async (req, res) => {
   const { correo, clave } = req.body;
