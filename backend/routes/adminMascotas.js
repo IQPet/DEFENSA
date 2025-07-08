@@ -44,4 +44,48 @@ router.get('/mascotas', async (req, res) => {
   }
 });
 
+// POST /api/admin/mascotas
+router.post('/mascotas', async (req, res) => {
+  const adminCorreo = req.headers['x-admin-correo'];
+
+  // Validación simple de administrador
+  if (adminCorreo !== 'admin@iqpet.com') {
+    return res.status(403).json({ error: 'Acceso denegado. Solo para administradores.' });
+  }
+
+  const { nombre, especie, raza, edad, correo } = req.body;
+
+  if (!nombre || !especie || !raza || !edad || !correo) {
+    return res.status(400).json({ error: 'Faltan campos requeridos.' });
+  }
+
+  try {
+    // Buscar dueño por correo
+    const duenoRes = await pool.query('SELECT id FROM duenos WHERE correo = $1', [correo]);
+
+    if (duenoRes.rowCount === 0) {
+      return res.status(404).json({ error: 'Dueño no encontrado.' });
+    }
+
+    const duenoId = duenoRes.rows[0].id;
+
+    // Insertar nueva mascota
+    const insertRes = await pool.query(
+      `INSERT INTO mascotas (nombre, especie, raza, edad, dueno_id)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id`,
+      [nombre, especie, raza, edad, duenoId]
+    );
+
+    const nuevaId = insertRes.rows[0].id;
+    const url = `https://defensa-1.onrender.com/perfil.html?id=${nuevaId}`;
+
+    res.json({ id: nuevaId, url });
+  } catch (error) {
+    console.error('Error al crear mascota:', error);
+    res.status(500).json({ error: 'Error interno del servidor.' });
+  }
+});
+
 export default router;
+

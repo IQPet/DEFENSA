@@ -35,7 +35,6 @@ function mostrarMascotas(mascotas) {
     const div = document.createElement('div');
     div.className = 'mascota';
 
-    // Generar la URL del perfil según ID
     let perfilURL = 'https://defensa-1.onrender.com/perfil.html';
     if (m.id !== 1) {
       perfilURL += `?id=${m.id}`;
@@ -58,3 +57,43 @@ function mostrarMascotas(mascotas) {
 
 // Ejecutar al cargar la página
 cargarMascotas();
+
+
+// 🚀 Manejar envío del formulario para crear nueva mascota
+document.getElementById('form-nueva-mascota').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const nombre = document.getElementById('nombre').value.trim();
+  const especie = document.getElementById('especie').value.trim();
+  const correo = document.getElementById('correo').value.trim();
+
+  if (!nombre || !especie || !correo) {
+    alert('Completa todos los campos.');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/admin/mascotas', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-correo': ADMIN_CORREO
+      },
+      body: JSON.stringify({ nombre, especie, correo })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || 'Error al crear la mascota');
+      return;
+    }
+
+    alert(`✅ Mascota creada. URL: ${data.url}`);
+    document.getElementById('form-nueva-mascota').reset();
+    cargarMascotas(); // actualizar lista
+  } catch (err) {
+    console.error('Error al crear mascota:', err);
+    alert('Error al crear mascota');
+  }
+});

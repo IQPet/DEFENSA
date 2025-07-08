@@ -17,11 +17,21 @@
       margin-bottom: 10px;
     }
   </style>
- <script src="/js/admin-mascotas.js" defer></script>
-
+  <script src="/js/admin-mascotas.js" defer></script>
 </head>
 <body>
   <h1>🐾 Panel de Mascotas (Admin)</h1>
+
+  <h2>➕ Crear nueva mascota</h2>
+  <form id="form-nueva-mascota">
+    <label>Nombre: <input type="text" id="nombre" required></label><br>
+    <label>Especie: <input type="text" id="especie" required></label><br>
+    <label>Correo del dueño: <input type="email" id="correo" required></label><br>
+    <button type="submit">Crear mascota</button>
+  </form>
+
+  <hr>
+
   <div id="mascotas-container">Cargando mascotas...</div>
 </body>
 </html>
