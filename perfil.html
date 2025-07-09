@@ -65,6 +65,31 @@
         font-size: 15px;
       }
     }
+
+    /* Estilo botón editar */
+    #editar-perfil {
+      display: inline-block;
+      margin: 20px auto;
+      background: #0072ff;
+      color: white;
+      padding: 12px 25px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(0, 114, 255, 0.6);
+      transition: background-color 0.3s ease;
+    }
+    #editar-perfil:hover {
+      background: #005ecb;
+    }
+    main {
+      max-width: 700px;
+      margin: 0 auto 40px;
+      padding: 0 15px;
+    }
   </style>
 </head>
 <body>
@@ -145,6 +170,11 @@
       <button id="btn-contactar" type="button">Contactar con el dueño</button>
     </section>
 
+    <!-- NUEVO botón para editar perfil -->
+    <section style="text-align: center;">
+      <a id="editar-perfil" href="#">✏️ Editar perfil</a>
+    </section>
+
     <div id="zona-info"></div>
   </main>
 
@@ -192,6 +222,9 @@
           document.getElementById('telefono-dueno').textContent = data.dueno_telefono || '';
           document.getElementById('correo-dueno').textContent = data.dueno_correo || '';
           document.getElementById('mensaje-dueno').textContent = data.dueno_mensaje || '';
+
+          // Aquí asignamos el enlace para editar perfil con el id correcto
+          document.getElementById('editar-perfil').href = `editar.html?id=${id}`;
         })
         .catch(err => {
           console.error(err);
@@ -206,6 +239,7 @@
 
 </body>
 </html>
+
 
 
 
