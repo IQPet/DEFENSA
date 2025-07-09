@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Crear Mascota (Admin)</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 700px;
+      margin: 20px auto;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    img#preview-foto {
+      max-width: 200px;
+      margin-top: 10px;
+      display: none;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+  </style>
+  <script src="js/crear-mascota-admin.js" defer></script>
+</head>
+<body>
+  <h1>➕ Crear Mascota (como admin)</h1>
+
+  <form id="form-mascota" enctype="multipart/form-data">
+    <fieldset>
+      <legend><strong>🐶 Datos de la Mascota</strong></legend>
+      <label>Nombre: <input type="text" name="nombre" required></label>
+      <label>Especie: <input type="text" name="especie"></label>
+      <label>Raza: <input type="text" name="raza"></label>
+      <label>Edad: <input type="text" name="edad"></label>
+      <label>Estado: <input type="text" name="estado"></label>
+      <label>Mensaje: <input type="text" name="mensaje"></label>
+      <label>Historial salud: <textarea name="historial_salud" rows="3"></textarea></label>
+      <label>Foto: <input type="file" name="foto" id="foto" accept="image/*" required></label>
+      <img id="preview-foto" alt="Vista previa de la foto">
+    </fieldset>
+
+    <fieldset>
+      <legend><strong>👤 Datos del Dueño</strong></legend>
+      <label>Correo del dueño: <input type="email" name="correo" id="correo" required></label>
+      <label>Nombre del dueño: <input type="text" name="dueno_nombre" id="dueno_nombre"></label>
+      <label>Teléfono: <input type="text" name="telefono" id="telefono"></label>
+      <label>Mensaje del dueño: <input type="text" name="mensaje_dueno" id="mensaje_dueno"></label>
+    </fieldset>
+
+    <button type="submit" style="margin-top: 20px;">✅ Crear Perfil</button>
+  </form>
+</body>
+</html>

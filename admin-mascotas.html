@@ -4,17 +4,50 @@
 <head>
   <meta charset="UTF-8">
   <title>Panel de Mascotas (Admin)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
-      font-family: sans-serif;
-      max-width: 800px;
-      margin: 20px auto;
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 15px;
+      background-color: #f9f9f9;
+      color: #333;
     }
+
+    h1 {
+      color: #4a90e2;
+    }
+
+    a {
+      color: #2a75d4;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
     .mascota {
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      margin-bottom: 10px;
+      background: #fff;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .mascota strong {
+      font-size: 1.1em;
+    }
+
+    .mascota small {
+      color: #777;
+    }
+
+    .top-link {
+      margin-bottom: 20px;
+      display: block;
     }
   </style>
   <script src="/js/admin-mascotas.js" defer></script>
@@ -22,16 +55,10 @@
 <body>
   <h1>🐾 Panel de Mascotas (Admin)</h1>
 
-  <h2>➕ Crear nueva mascota</h2>
-  <form id="form-nueva-mascota">
-    <label>Nombre: <input type="text" id="nombre" required></label><br>
-    <label>Especie: <input type="text" id="especie" required></label><br>
-    <label>Correo del dueño: <input type="email" id="correo" required></label><br>
-    <button type="submit">Crear mascota</button>
-  </form>
+  <a class="top-link" href="crear-mascota-admin.html" target="_blank">➕ Crear nueva mascota</a>
 
-  <hr>
-
-  <div id="mascotas-container">Cargando mascotas...</div>
+  <section id="mascotas-container">
+    <p>Cargando mascotas...</p>
+  </section>
 </body>
 </html>
