@@ -170,7 +170,7 @@
       <button id="btn-contactar" type="button">Contactar con el dueño</button>
     </section>
 
-    <!-- NUEVO botón para editar perfil -->
+    <!-- Botón para editar perfil -->
     <section style="text-align: center;">
       <a id="editar-perfil" href="#">✏️ Editar perfil</a>
     </section>
@@ -185,9 +185,8 @@
 
   <!-- Librerías y scripts -->
   <script src="https://cdn.jsdelivr.net/npm/ua-parser-js@1.0.35/dist/ua-parser.min.js"></script>
-  
+
   <script type="module">
-    // Extraemos el ID de la URL
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
 
@@ -200,17 +199,10 @@
           return res.json();
         })
         .then(data => {
-          // URL base pública de tu bucket Supabase 'mascotas'
-          const supabaseBaseUrl = 'https://db.hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/';
-
-          let foto = data.foto || 'default.png';
-
-          // Construimos la URL completa solo si la foto no empieza con http
-          if (foto && !foto.startsWith('http')) {
-            foto = supabaseBaseUrl + foto.replace(/^\/?imagenes\/mascotas\//, '');
-          }
-
+          // 👇 Usamos directamente la URL de Supabase (ya completa desde backend)
+          const foto = data.foto || 'default.png';
           document.getElementById('foto-mascota').src = foto;
+
           document.getElementById('nombre-mascota').textContent = data.nombre || 'Sin nombre';
           document.getElementById('estado').textContent = data.estado || '';
           document.getElementById('mensaje-mascota').textContent = data.mensaje || '';
@@ -223,7 +215,6 @@
           document.getElementById('correo-dueno').textContent = data.dueno_correo || '';
           document.getElementById('mensaje-dueno').textContent = data.dueno_mensaje || '';
 
-          // Aquí asignamos el enlace para editar perfil con el id correcto
           document.getElementById('editar-perfil').href = `editar.html?id=${id}`;
         })
         .catch(err => {
@@ -233,7 +224,7 @@
     }
   </script>
 
-  <!-- Scripts de tu proyecto que manejan consentimiento, geolocalización, y lógica -->
+  <!-- Scripts del proyecto -->
   <script type="module" src="js/main.js"></script>
   <script type="module" src="js/perfil-consentimiento.js"></script>
 
