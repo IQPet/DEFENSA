@@ -288,6 +288,9 @@ app.post('/api/validar-dueno', cors(corsOptions), async (req, res) => {
 // ✏️ Actualizar perfil
 console.log('Definiendo ruta PUT /api/editar-perfil/:id');
 app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
+  console.log('📂 req.file:', req.file);  // Aquí vemos si multer recibe la imagen
+  console.log('📋 req.body:', req.body);  // Para ver el resto de datos recibidos
+
   const mascotaId = req.params.id;
   const {
     nombre_mascota,
@@ -323,22 +326,23 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
 
       // Subir imagen a Supabase Storage
       const { data, error } = await supabase.storage
-        .from('mascotas')  // Asegúrate que este bucket exista en Supabase
+        .from('mascotas')
         .upload(fileName, req.file.buffer, {
           contentType: req.file.mimetype,
           upsert: true,
         });
 
+      console.log('🟢 Supabase upload error:', error);
+      console.log('🟢 Supabase upload data:', data);
+
       if (error) {
-        console.error('Error al subir imagen a Supabase:', error);
         return res.status(500).json({ error: 'Error subiendo imagen' });
       }
 
-      // Obtener URL pública
       const { publicURL, error: urlError } = supabase.storage.from('mascotas').getPublicUrl(fileName);
 
       if (urlError) {
-        console.error('Error obteniendo URL pública:', urlError);
+        console.error('❌ Error obteniendo URL pública:', urlError);
         return res.status(500).json({ error: 'Error obteniendo URL pública' });
       }
 
