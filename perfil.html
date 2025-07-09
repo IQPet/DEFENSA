@@ -170,8 +170,17 @@
           return res.json();
         })
         .then(data => {
-          // Carga de datos en el DOM
-          document.getElementById('foto-mascota').src = data.foto || 'default.png';
+          // URL base pública de tu bucket Supabase 'mascotas'
+          const supabaseBaseUrl = 'https://db.hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/';
+
+          let foto = data.foto || 'default.png';
+
+          // Construimos la URL completa solo si la foto no empieza con http
+          if (foto && !foto.startsWith('http')) {
+            foto = supabaseBaseUrl + foto.replace(/^\/?imagenes\/mascotas\//, '');
+          }
+
+          document.getElementById('foto-mascota').src = foto;
           document.getElementById('nombre-mascota').textContent = data.nombre || 'Sin nombre';
           document.getElementById('estado').textContent = data.estado || '';
           document.getElementById('mensaje-mascota').textContent = data.mensaje || '';

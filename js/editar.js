@@ -1,15 +1,17 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  const mascotaId = 1; // ⚠️ Puedes cambiarlo dinámicamente si necesitas
+  const mascotaId = new URLSearchParams(window.location.search).get("id");
+  if (!mascotaId) {
+    alert("⚠️ No se proporcionó el ID de la mascota.");
+    return;
+  }
 
   try {
-    // Obtener datos actuales del perfil
     const res = await fetch(`https://defensa-1.onrender.com/api/perfil/${mascotaId}`);
     const data = await res.json();
 
     if (!res.ok) throw new Error(data.error || "No se pudo obtener el perfil");
 
-    // Mostrar datos en inputs
-    document.getElementById("foto-preview").src = `https://defensa-1.onrender.com/${data.foto}`;
+    document.getElementById("foto-preview").src = data.foto;
     document.getElementById("nombre-mascota").value = data.nombre_mascota;
     document.getElementById("estado").value = data.estado;
     document.getElementById("mensaje-mascota").value = data.mensaje_mascota;
@@ -28,7 +30,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     alert("No se pudo cargar el perfil para editar.");
   }
 
-  // Manejar la vista previa de la nueva foto
   const fotoInput = document.getElementById("foto-input");
   const fotoPreview = document.getElementById("foto-preview");
 
@@ -43,7 +44,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // Guardar cambios al hacer clic
   document.getElementById("btn-guardar").addEventListener("click", async () => {
     const formData = new FormData();
 
@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const fotoFile = document.getElementById("foto-input").files[0];
     if (fotoFile) {
-      formData.append("foto", fotoFile); // solo si cambia la imagen
+      formData.append("foto", fotoFile);
     }
 
     try {
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!res.ok) throw new Error(result.error || "Error actualizando perfil");
 
       alert("✅ Perfil actualizado correctamente");
-      window.location.href = "perfil.html"; // Volver al perfil
+      window.location.href = `perfil.html?id=${mascotaId}`;
     } catch (error) {
       console.error("❌ Error guardando cambios:", error);
       alert("No se pudo guardar los cambios.");

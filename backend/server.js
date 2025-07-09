@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 import fetch from 'node-fetch';
 import geoRouter from './routes/geolocalizacion.js';
 import adminMascotasRoutes from './routes/adminMascotas.js';
+import { supabase } from './routes/supabaseClient.js';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -66,16 +67,7 @@ app.use('/api/admin', adminMascotasRoutes);
 
 
 // Configurar multer para subir imágenes
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, 'imagenes', 'mascotas'));
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const uniqueName = `mascota_${Date.now()}${ext}`;
-    cb(null, uniqueName);
-  }
-});
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // Validar .env
@@ -314,15 +306,40 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
 
     const duenoId = duenoQuery.rows[0].dueno_id;
 
-    let nuevaRutaFoto = null;
+    let urlFotoPublica = null;
+
     if (req.file) {
-      nuevaRutaFoto = `imagenes/mascotas/${req.file.filename}`;
+      const fileExt = req.file.originalname.split('.').pop();
+      const fileName = `mascotas/mascota_${mascotaId}_${Date.now()}.${fileExt}`;
+
+      // Subir imagen a Supabase Storage
+      const { data, error } = await supabase.storage
+        .from('mascotas')  // Asegúrate que este bucket exista en Supabase
+        .upload(fileName, req.file.buffer, {
+          contentType: req.file.mimetype,
+          upsert: true,
+        });
+
+      if (error) {
+        console.error('Error al subir imagen a Supabase:', error);
+        return res.status(500).json({ error: 'Error subiendo imagen' });
+      }
+
+      // Obtener URL pública
+      const { publicURL, error: urlError } = supabase.storage.from('mascotas').getPublicUrl(fileName);
+
+      if (urlError) {
+        console.error('Error obteniendo URL pública:', urlError);
+        return res.status(500).json({ error: 'Error obteniendo URL pública' });
+      }
+
+      urlFotoPublica = publicURL;
     }
 
     const queryMascota = `
       UPDATE mascotas
       SET nombre = $1, estado = $2, mensaje = $3, especie = $4, raza = $5, edad = $6,
-          historial_salud = $7${nuevaRutaFoto ? `, foto = '${nuevaRutaFoto}'` : ''}
+          historial_salud = $7${urlFotoPublica ? `, foto = '${urlFotoPublica}'` : ''}
       WHERE id = $8
     `;
 
@@ -358,6 +375,7 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
     res.status(500).json({ error: 'Error al actualizar el perfil', detalle: error.message });
   }
 });
+
 
 console.log("🛠️ Versión corregida sin path-to-regexp directa");
 

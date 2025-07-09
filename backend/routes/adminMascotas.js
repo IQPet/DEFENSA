@@ -1,26 +1,15 @@
 import express from 'express';
 import pool from '../config/db.js';
 import path from 'path';
-import fs from 'fs';
+// import fs from 'fs'; // ya no se usa fs para guardar imágenes localmente
 import multer from 'multer';
 import { enviarCredenciales } from '../utils/mailer.js';
+import supabase from './supabaseClient.js'; // IMPORTA supabase aquí
 
 const router = express.Router();
 
-// === Configuración de Multer para subida de imágenes ===
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = path.join('imagenes', 'mascotas');
-    fs.mkdirSync(dir, { recursive: true });
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now();
-    const ext = path.extname(file.originalname);
-    cb(null, `mascota_${uniqueSuffix}${ext}`);
-  }
-});
-
+// === Configuración de Multer para subida de imágenes EN MEMORIA ===
+const storage = multer.memoryStorage(); // Cambio: memoria en lugar de disco
 const upload = multer({ storage });
 
 // === Verificación básica de admin (mejor usar token en producción) ===
@@ -95,24 +84,55 @@ router.post('/crear-mascota', upload.single('foto'), async (req, res) => {
       duenoId = duenoRes.rows[0].id;
     } else {
       const clave = Math.random().toString(36).substring(2, 8); // clave temporal
-      const nuevoDueno = await pool.query(
-        `INSERT INTO duenos (nombre, telefono, correo, mensaje, clave)
-         VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-        [
-          dueno_nombre || 'Dueño',
-          telefono || '',
-          correo,
-          mensaje_dueno || '',
-          clave
-        ]
-      );
-      duenoId = nuevoDueno.rows[0].id;
 
-      // Enviar correo con clave temporal
-      await enviarCredenciales(correo, dueno_nombre || 'Dueño', clave, duenoId);
+      console.log('📧 Creando nuevo dueño y enviando correo...');
+      try {
+        const nuevoDueno = await pool.query(
+          `INSERT INTO duenos (nombre, telefono, correo, mensaje, clave)
+           VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+          [
+            dueno_nombre || 'Dueño',
+            telefono || '',
+            correo,
+            mensaje_dueno || '',
+            clave
+          ]
+        );
+        duenoId = nuevoDueno.rows[0].id;
+
+        console.log(`🔑 Clave temporal generada: ${clave}`);
+        console.log(`📨 Llamando a enviarCredenciales para: ${correo}`);
+
+        await enviarCredenciales(correo, dueno_nombre || 'Dueño', clave, duenoId);
+
+        console.log('✅ Correo enviado correctamente o función terminó sin error.');
+      } catch (error) {
+        console.error('❌ Error creando dueño o enviando correo:', error);
+        return res.status(500).json({ error: 'Error al crear dueño o enviar correo.' });
+      }
     }
 
-    const fotoUrl = `/imagenes/mascotas/${req.file.filename}`; // ruta pública
+    // === NUEVO: subir imagen a Supabase Storage ===
+    const archivo = req.file;
+    const nombreArchivo = `mascota_${Date.now()}${path.extname(archivo.originalname)}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('mascotas')
+      .upload(nombreArchivo, archivo.buffer, {
+        contentType: archivo.mimetype,
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error('Error al subir imagen a Supabase:', uploadError.message);
+      return res.status(500).json({ error: 'No se pudo subir imagen.' });
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from('mascotas')
+      .getPublicUrl(nombreArchivo);
+
+    const fotoUrl = publicUrlData.publicUrl; // guardamos URL pública
 
     // Validación segura de edad
     const edadParseada = parseInt(edad);
