@@ -389,6 +389,27 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
 
 console.log("🛠️ Versión corregida sin path-to-regexp directa");
 
+// 🧪 Ruta temporal para testear conectividad con Supabase
+app.get('/api/test-supabase', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('mascotas')
+      .select('id')
+      .limit(1);
+
+    if (error) {
+      console.error('❌ Error al conectar con Supabase:', error);
+      return res.status(500).json({ error: 'Error conectando con Supabase', detalle: error.message });
+    }
+
+    res.json({ mensaje: '✅ Conexión a Supabase exitosa', data });
+  } catch (err) {
+    console.error('❌ Error inesperado en test Supabase:', err);
+    res.status(500).json({ error: 'Fallo inesperado', detalle: err.message });
+  }
+});
+
+
 // 🚀 Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor backend escuchando en puerto ${PORT}`);
