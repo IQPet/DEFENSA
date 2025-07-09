@@ -21,12 +21,12 @@ const isLocal = process.env.DATABASE_URL.includes('localhost') || process.env.DA
 // 🔐 Conectar usando configuración SSL condicional
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: isLocal ? false : {
-    rejectUnauthorized: false,
-    // 👇⚠️ Este parámetro ayuda a evitar que intente IPv6:
-    // aunque no siempre es necesario, algunos entornos lo requieren
-    minVersion: 'TLSv1.2'
-  },
+  ssl: isLocal
+    ? false
+    : {
+        rejectUnauthorized: false,
+        minVersion: 'TLSv1.2'
+      },
 });
 
 // Probar conexión
