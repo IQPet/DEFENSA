@@ -118,9 +118,21 @@ router.post('/crear-mascota', upload.single('foto'), async (req, res) => {
     const edadParseada = parseInt(edad);
     const edadFinal = isNaN(edadParseada) ? null : edadParseada;
 
+    // 🧪 Validación y transformación del estado
+    const estadosValidos = {
+      'En casa': 'en_casa',
+      'Perdido': 'perdido'
+    };
+
+    if (!estadosValidos[estado]) {
+      return res.status(400).json({ error: 'Estado inválido. Solo se permite "En casa" o "Perdido".' });
+    }
+
+    const estadoBD = estadosValidos[estado];
+
     // Log para depuración
     console.log('🐶 Datos para insertar mascota:', {
-      nombre, especie, raza, edad: edadFinal, estado, mensaje,
+      nombre, especie, raza, edad: edadFinal, estado: estadoBD, mensaje,
       historial_salud, fotoUrl, duenoId
     });
 
@@ -132,7 +144,7 @@ router.post('/crear-mascota', upload.single('foto'), async (req, res) => {
       RETURNING id
     `, [
       nombre, especie, raza, edadFinal,
-      estado, mensaje, historial_salud,
+      estadoBD, mensaje, historial_salud,
       fotoUrl, duenoId
     ]);
 
