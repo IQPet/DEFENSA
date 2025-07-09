@@ -1,10 +1,11 @@
 import dotenv from 'dotenv';
 import path from 'path';
 import pkg from 'pg';
+import dns from 'dns/promises';
 
 const { Pool } = pkg;
 
-// Cargar .env desde la carpeta backend
+// Cargar variables desde .env
 dotenv.config({ path: path.resolve(process.cwd(), 'backend', '.env') });
 
 console.log('📍 Ruta del .env cargado:', path.resolve(process.cwd(), 'backend', '.env'));
@@ -18,16 +19,32 @@ if (!process.env.DATABASE_URL) {
 // Detectar si es conexión local
 const isLocal = process.env.DATABASE_URL.includes('localhost') || process.env.DATABASE_URL.includes('127.0.0.1');
 
-// Crear pool con configuración IPv4 segura para Render
+// 👉 Obtener IP IPv4 del host Supabase
+let finalConnectionString = process.env.DATABASE_URL;
+if (!isLocal) {
+  try {
+    const resolved = await dns.lookup('db.hfmfwrgnaxknywfbocrl.supabase.co', { family: 4 });
+    const ipv4 = resolved.address;
+    console.log('🌐 IP IPv4 resuelta para Supabase:', ipv4);
+
+    // Reemplazar dominio con IP y mantener parámetros
+    finalConnectionString = process.env.DATABASE_URL.replace(
+      'db.hfmfwrgnaxknywfbocrl.supabase.co',
+      ipv4
+    );
+  } catch (err) {
+    console.error('❌ Error resolviendo IPv4:', err.message);
+    process.exit(1);
+  }
+}
+
+// Crear pool con la nueva cadena de conexión
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: finalConnectionString,
   ssl: isLocal ? false : { rejectUnauthorized: false },
-  host: isLocal ? undefined : 'db.hfmfwrgnaxknywfbocrl.supabase.co', // ⬅️ Forzar IPv4 explícitamente en Render
-  port: 5432,
-  statement_timeout: 5000, // ⏱️ Previene bloqueos por lentitud
 });
 
-// Probar conexión al iniciar
+// Probar conexión
 (async () => {
   try {
     const client = await pool.connect();
