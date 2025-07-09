@@ -9,8 +9,7 @@ import { fileURLToPath } from 'url';
 import fetch from 'node-fetch';
 import geoRouter from './routes/geolocalizacion.js';
 import adminMascotasRoutes from './routes/adminMascotas.js';
-import { supabase } from './routes/supabaseClient.js';
-
+import supabase from './routes/supabaseClient.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -375,7 +374,6 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
     res.status(500).json({ error: 'Error al actualizar el perfil', detalle: error.message });
   }
 });
-
 
 console.log("🛠️ Versión corregida sin path-to-regexp directa");
 
