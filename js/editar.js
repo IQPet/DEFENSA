@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const mascotaId = new URLSearchParams(window.location.search).get("id");
+
   if (!mascotaId) {
     alert("⚠️ No se proporcionó el ID de la mascota.");
     return;
@@ -11,25 +12,32 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (!res.ok) throw new Error(data.error || "No se pudo obtener el perfil");
 
-    document.getElementById("foto-preview").src = data.foto;
-    document.getElementById("nombre-mascota").value = data.nombre_mascota;
-    document.getElementById("estado").value = data.estado;
-    document.getElementById("mensaje-mascota").value = data.mensaje_mascota;
+    // 🖼️ Verificar si la foto ya es URL pública
+    if (data.foto && data.foto.startsWith("http")) {
+      document.getElementById("foto-preview").src = data.foto;
+    } else if (data.foto) {
+      document.getElementById("foto-preview").src = `https://defensa-1.onrender.com/${data.foto}`;
+    }
 
-    document.getElementById("especie").value = data.especie;
-    document.getElementById("raza").value = data.raza;
-    document.getElementById("edad").value = data.edad;
-    document.getElementById("historial_salud").value = data.historial_salud;
+    document.getElementById("nombre-mascota").value = data.nombre_mascota || '';
+    document.getElementById("estado").value = data.estado || 'Perdida';
+    document.getElementById("mensaje-mascota").value = data.mensaje_mascota || '';
 
-    document.getElementById("nombre-dueno").value = data.nombre_dueno;
-    document.getElementById("telefono-dueno").value = data.telefono;
-    document.getElementById("correo-dueno").value = data.correo;
-    document.getElementById("mensaje-dueno").value = data.mensaje_dueno;
+    document.getElementById("especie").value = data.especie || '';
+    document.getElementById("raza").value = data.raza || '';
+    document.getElementById("edad").value = data.edad || '';
+    document.getElementById("historial_salud").value = data.historial_salud || '';
+
+    document.getElementById("nombre-dueno").value = data.nombre_dueno || '';
+    document.getElementById("telefono-dueno").value = data.telefono || '';
+    document.getElementById("correo-dueno").value = data.correo || '';
+    document.getElementById("mensaje-dueno").value = data.mensaje_dueno || '';
   } catch (error) {
     console.error("❌ Error al cargar el perfil:", error);
     alert("No se pudo cargar el perfil para editar.");
   }
 
+  // 📸 Vista previa de la nueva foto
   const fotoInput = document.getElementById("foto-input");
   const fotoPreview = document.getElementById("foto-preview");
 
@@ -44,6 +52,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  // 💾 Guardar cambios
   document.getElementById("btn-guardar").addEventListener("click", async () => {
     const formData = new FormData();
 
@@ -84,3 +93,4 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
+
