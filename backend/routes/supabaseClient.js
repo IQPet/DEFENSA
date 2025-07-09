@@ -1,10 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
-import { Agent, fetch } from 'undici'; // ← Aquí agregamos `fetch`
+import { Agent, fetch as undiciFetch } from 'undici'; // ← renombramos `fetch` para evitar confusión
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 
-// ⚠️ Forzar IPv4
+// ⚠️ Forzar uso de IPv4
 const ipv4Agent = new Agent({
   connect: {
     family: 4,
@@ -12,12 +12,17 @@ const ipv4Agent = new Agent({
   }
 });
 
+// 🚀 Usamos `undiciFetch` con agente IPv4
+const fetchWithIPv4 = (url, options = {}) => {
+  return undiciFetch(url, { ...options, dispatcher: ipv4Agent });
+};
+
+// 🧠 Crear cliente Supabase con fetch personalizado
 const supabase = createClient(supabaseUrl, supabaseKey, {
   global: {
-    fetch: (url, options) => fetch(url, { ...options, dispatcher: ipv4Agent }),
+    fetch: fetchWithIPv4
   }
 });
 
 export default supabase;
-
 
