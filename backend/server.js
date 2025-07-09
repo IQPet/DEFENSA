@@ -324,29 +324,26 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
       const fileExt = req.file.originalname.split('.').pop();
       const fileName = `mascotas/mascota_${mascotaId}_${Date.now()}.${fileExt}`;
 
-      // Subir imagen a Supabase Storage
-      const { data, error } = await supabase.storage
-        .from('mascotas')
-        .upload(fileName, req.file.buffer, {
-          contentType: req.file.mimetype,
-          upsert: true,
-        });
+      try {
+        // Subir imagen a Supabase Storage
+        const { data, error } = await supabase.storage
+          .from('mascotas')
+          .upload(fileName, req.file.buffer, {
+            contentType: req.file.mimetype,
+            upsert: true,
+          });
 
-      console.log('🟢 Supabase upload error:', error);
-      console.log('🟢 Supabase upload data:', data);
+        if (error) throw error;
 
-      if (error) {
-        return res.status(500).json({ error: 'Error subiendo imagen' });
+        const { publicURL, error: urlError } = supabase.storage.from('mascotas').getPublicUrl(fileName);
+
+        if (urlError) throw urlError;
+
+        urlFotoPublica = publicURL;
+      } catch (supabaseError) {
+        console.error('❌ Error subiendo imagen a Supabase:', supabaseError);
+        return res.status(500).json({ error: 'Error subiendo imagen a Supabase', detalle: supabaseError.message });
       }
-
-      const { publicURL, error: urlError } = supabase.storage.from('mascotas').getPublicUrl(fileName);
-
-      if (urlError) {
-        console.error('❌ Error obteniendo URL pública:', urlError);
-        return res.status(500).json({ error: 'Error obteniendo URL pública' });
-      }
-
-      urlFotoPublica = publicURL;
     }
 
     const queryMascota = `
@@ -388,6 +385,7 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
     res.status(500).json({ error: 'Error al actualizar el perfil', detalle: error.message });
   }
 });
+
 
 console.log("🛠️ Versión corregida sin path-to-regexp directa");
 
