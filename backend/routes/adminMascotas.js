@@ -1,18 +1,19 @@
 import express from 'express';
 import pool from '../config/db.js';
-import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import multer from 'multer';
 
 const router = express.Router();
 
+// === Configuración de Multer para subida de imágenes ===
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination: (req, file, cb) => {
     const dir = path.join('imagenes', 'mascotas');
     fs.mkdirSync(dir, { recursive: true });
     cb(null, dir);
   },
-  filename: function (req, file, cb) {
+  filename: (req, file, cb) => {
     const uniqueSuffix = Date.now();
     const ext = path.extname(file.originalname);
     cb(null, `mascota_${uniqueSuffix}${ext}`);
@@ -21,15 +22,21 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+// === Verificación básica de admin (mejor usar token en producción) ===
+function verificarAdmin(req, res) {
+  const adminCorreo = req.headers['x-admin-correo'];
+  if (adminCorreo !== 'admin@iqpet.com') {
+    res.status(403).json({ error: 'Acceso denegado. Solo para administradores.' });
+    return false;
+  }
+  return true;
+}
+
 /* =========================
    GET /api/admin/mascotas
 =========================== */
 router.get('/mascotas', async (req, res) => {
-  const adminCorreo = req.headers['x-admin-correo'];
-
-  if (adminCorreo !== 'admin@iqpet.com') {
-    return res.status(403).json({ error: 'Acceso denegado. Solo para administradores.' });
-  }
+  if (!verificarAdmin(req, res)) return;
 
   try {
     const query = `
@@ -64,14 +71,9 @@ router.get('/mascotas', async (req, res) => {
 
 /* ===============================
    POST /api/admin/crear-mascota
-   (con imagen y creación de dueño)
 ================================ */
 router.post('/crear-mascota', upload.single('foto'), async (req, res) => {
-  const adminCorreo = req.headers['x-admin-correo'];
-
-  if (adminCorreo !== 'admin@iqpet.com') {
-    return res.status(403).json({ error: 'Acceso denegado.' });
-  }
+  if (!verificarAdmin(req, res)) return;
 
   const {
     nombre, especie, raza, edad, estado,
@@ -86,7 +88,6 @@ router.post('/crear-mascota', upload.single('foto'), async (req, res) => {
   try {
     let duenoId;
 
-    // Buscar dueño existente
     const duenoRes = await pool.query('SELECT id FROM duenos WHERE correo = $1', [correo]);
 
     if (duenoRes.rowCount > 0) {
@@ -106,13 +107,12 @@ router.post('/crear-mascota', upload.single('foto'), async (req, res) => {
       );
       duenoId = nuevoDueno.rows[0].id;
 
-      // Aquí podrías enviar email con la clave si implementas un mailer
-      // await enviarCredenciales(correo, dueno_nombre, clave, idMascota);
+      // 🚀 Aquí podrías enviar correo con la clave
+      // await enviarCredenciales(correo, dueno_nombre, clave, duenoId);
     }
 
-    const fotoUrl = `imagenes/mascotas/${req.file.filename}`;
+    const fotoUrl = `/imagenes/mascotas/${req.file.filename}`; // ruta pública
 
-    // Insertar mascota
     const insertMascota = await pool.query(`
       INSERT INTO mascotas 
         (nombre, especie, raza, edad, estado, mensaje, historial_salud, foto, dueno_id)
@@ -140,14 +140,14 @@ router.post('/crear-mascota', upload.single('foto'), async (req, res) => {
 
 /* ===============================
    GET /api/admin/dueno-por-correo
-   (para autocompletar datos en el form)
 ================================ */
 router.get('/dueno-por-correo', async (req, res) => {
-  const adminCorreo = req.headers['x-admin-correo'];
+  if (!verificarAdmin(req, res)) return;
+
   const correo = req.query.correo;
 
-  if (adminCorreo !== 'admin@iqpet.com') {
-    return res.status(403).json({ error: 'Acceso denegado.' });
+  if (!correo) {
+    return res.status(400).json({ error: 'Correo no proporcionado' });
   }
 
   try {
