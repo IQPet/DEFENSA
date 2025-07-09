@@ -4,7 +4,7 @@ import pkg from 'pg';
 
 const { Pool } = pkg;
 
-// Cargar .env desde la carpeta backend
+// Cargar variables de entorno desde la carpeta backend
 dotenv.config({ path: path.resolve(process.cwd(), 'backend', '.env') });
 
 console.log('📍 Ruta del .env cargado:', path.resolve(process.cwd(), 'backend', '.env'));
@@ -15,14 +15,18 @@ if (!process.env.DATABASE_URL) {
   process.exit(1);
 }
 
+// Detectar si la conexión es local (localhost o 127.0.0.1)
 const isLocal = process.env.DATABASE_URL.includes('localhost') || process.env.DATABASE_URL.includes('127.0.0.1');
 
+// Configurar Pool de pg con opción ssl adecuada
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: isLocal ? false : { rejectUnauthorized: false },
+  ssl: isLocal
+    ? false                       // Sin SSL si es local
+    : { rejectUnauthorized: false }, // Aceptar certificado autofirmado en producción/supabase
 });
 
-// Test rápido de conexión al iniciar
+// Test rápido de conexión al iniciar el servidor
 (async () => {
   try {
     const client = await pool.connect();
