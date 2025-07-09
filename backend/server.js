@@ -263,10 +263,20 @@ app.post('/api/validar-dueno', cors(corsOptions), async (req, res) => {
     }
 
     const dueno = result.rows[0];
+
+    // 🔍 Buscar las mascotas de este dueño
+    const mascotasResult = await pool.query(
+      'SELECT id, nombre FROM mascotas WHERE dueno_id = $1',
+      [dueno.id]
+    );
+
+    const mascotas = mascotasResult.rows;
+
     return res.json({
       mensaje: 'Autenticación exitosa',
       duenoId: dueno.id,
-      nombre: dueno.nombre
+      nombre: dueno.nombre,
+      mascotas
     });
 
   } catch (error) {
