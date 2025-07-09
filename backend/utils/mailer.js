@@ -1,11 +1,11 @@
-// utils/mailer.js
 import nodemailer from 'nodemailer';
 
+// Accede a las variables de entorno
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'TU_CORREO@gmail.com',
-    pass: 'TU_CONTRASEÑA_DE_APP'
+    user: process.env.EMAIL_USER,       // usa variable .env
+    pass: process.env.EMAIL_PASS        // usa variable .env
   }
 });
 
@@ -25,7 +25,7 @@ Gracias por usar IQPET 🐾
 `;
 
   await transporter.sendMail({
-    from: '"IQPET" <TU_CORREO@gmail.com>',
+    from: `"IQPET" <${process.env.EMAIL_USER}>`,  // también aquí
     to: correo,
     subject: '🐶 Perfil de tu mascota creado en IQPET',
     text: mensaje

@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css" />
 
   <style>
-    /* Encabezado principal */
+    /* Estilos encabezado */
     .header-principal {
       display: flex;
       align-items: center;
@@ -17,23 +17,19 @@
       border-bottom: 1px solid rgba(0, 0, 0, 0.1);
       backdrop-filter: blur(6px);
     }
-
     .header-principal .logo {
       height: 45px;
     }
-
     .titulo-encabezado h1 {
       margin: 0;
       font-size: 24px;
       color: #0072ff;
     }
-
     .titulo-encabezado p.lema {
       margin: 0;
       font-size: 13px;
       color: #555;
     }
-
     .boton-login {
       text-decoration: none;
       background: linear-gradient(90deg, #0072ff, #005ecb);
@@ -46,27 +42,22 @@
       transition: background 0.3s ease, box-shadow 0.3s ease;
       white-space: nowrap;
     }
-
     .boton-login:hover {
       background: linear-gradient(90deg, #005ecb, #003d99);
       box-shadow: 0 4px 10px rgba(0, 61, 153, 0.6);
     }
-
     @media (max-width: 600px) {
       .header-principal {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
       }
-
       .titulo-encabezado h1 {
         font-size: 20px;
       }
-
       .titulo-encabezado p.lema {
         font-size: 12px;
       }
-
       .boton-login {
         width: 100%;
         text-align: center;
@@ -78,7 +69,7 @@
 </head>
 <body>
 
-  <!-- Modal de consentimiento -->
+  <!-- Modal consentimiento -->
   <div id="consentimiento-modal" style="
     position: fixed;
     top: 0; left: 0;
@@ -112,7 +103,7 @@
     </div>
   </div>
 
-  <!-- Encabezado -->
+  <!-- Header -->
   <header class="header-principal">
     <div style="display: flex; align-items: center; gap: 12px;">
       <img src="LOGO.png" alt="Logo de IQPet" class="logo" />
@@ -124,9 +115,8 @@
     <a href="login.html" class="boton-login" aria-label="Iniciar sesión">🔐 Iniciar sesión</a>
   </header>
 
-  <!-- Contenido -->
+  <!-- Contenido principal -->
   <main>
-    <!-- 🆕 Mensaje visible si la ubicación es imprecisa -->
     <div id="ubicacion-aviso" style="color: red; font-weight: bold; padding: 10px 20px;"></div>
 
     <section class="perfil-mascota">
@@ -155,21 +145,59 @@
       <button id="btn-contactar" type="button">Contactar con el dueño</button>
     </section>
 
-    <!-- Zona para mostrar resumen -->
     <div id="zona-info"></div>
   </main>
 
-  <!-- Pie -->
+  <!-- Footer -->
   <footer>
     <p id="aviso-legal">Este perfil es solo para fines informativos. No se comparte información privada sin autorización.</p>
   </footer>
 
+  <!-- Librerías y scripts -->
   <script src="https://cdn.jsdelivr.net/npm/ua-parser-js@1.0.35/dist/ua-parser.min.js"></script>
-  <!-- JS módulos -->
+  
+  <script type="module">
+    // Extraemos el ID de la URL
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    if (!id) {
+      alert('ID de mascota no especificado en la URL.');
+    } else {
+      fetch(`/api/mascota/${id}`)
+        .then(res => {
+          if (!res.ok) throw new Error('Mascota no encontrada');
+          return res.json();
+        })
+        .then(data => {
+          // Carga de datos en el DOM
+          document.getElementById('foto-mascota').src = data.foto || 'default.png';
+          document.getElementById('nombre-mascota').textContent = data.nombre || 'Sin nombre';
+          document.getElementById('estado').textContent = data.estado || '';
+          document.getElementById('mensaje-mascota').textContent = data.mensaje || '';
+          document.getElementById('especie').textContent = data.especie || '';
+          document.getElementById('raza').textContent = data.raza || '';
+          document.getElementById('edad').textContent = data.edad || '';
+          document.getElementById('historial_salud').textContent = data.historial_salud || '';
+          document.getElementById('nombre-dueno').textContent = data.dueno_nombre || '';
+          document.getElementById('telefono-dueno').textContent = data.dueno_telefono || '';
+          document.getElementById('correo-dueno').textContent = data.dueno_correo || '';
+          document.getElementById('mensaje-dueno').textContent = data.dueno_mensaje || '';
+        })
+        .catch(err => {
+          console.error(err);
+          alert('❌ Mascota no encontrada o error al cargar los datos.');
+        });
+    }
+  </script>
+
+  <!-- Scripts de tu proyecto que manejan consentimiento, geolocalización, y lógica -->
   <script type="module" src="js/main.js"></script>
   <script type="module" src="js/perfil-consentimiento.js"></script>
+
 </body>
 </html>
+
 
 
 

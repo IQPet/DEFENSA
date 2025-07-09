@@ -3,6 +3,7 @@ import pool from '../config/db.js';
 import path from 'path';
 import fs from 'fs';
 import multer from 'multer';
+import { enviarCredenciales } from '../utils/mailer.js';
 
 const router = express.Router();
 
@@ -107,11 +108,21 @@ router.post('/crear-mascota', upload.single('foto'), async (req, res) => {
       );
       duenoId = nuevoDueno.rows[0].id;
 
-      // 🚀 Aquí podrías enviar correo con la clave
-      // await enviarCredenciales(correo, dueno_nombre, clave, duenoId);
+      // Enviar correo con clave temporal
+      await enviarCredenciales(correo, dueno_nombre || 'Dueño', clave, duenoId);
     }
 
     const fotoUrl = `/imagenes/mascotas/${req.file.filename}`; // ruta pública
+
+    // Validación segura de edad
+    const edadParseada = parseInt(edad);
+    const edadFinal = isNaN(edadParseada) ? null : edadParseada;
+
+    // Log para depuración
+    console.log('🐶 Datos para insertar mascota:', {
+      nombre, especie, raza, edad: edadFinal, estado, mensaje,
+      historial_salud, fotoUrl, duenoId
+    });
 
     const insertMascota = await pool.query(`
       INSERT INTO mascotas 
@@ -120,12 +131,13 @@ router.post('/crear-mascota', upload.single('foto'), async (req, res) => {
         ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING id
     `, [
-      nombre, especie, raza, edad,
+      nombre, especie, raza, edadFinal,
       estado, mensaje, historial_salud,
       fotoUrl, duenoId
     ]);
 
     const id = insertMascota.rows[0].id;
+    console.log('✅ Mascota insertada con ID:', id);
 
     const url = id === 1
       ? 'https://defensa-1.onrender.com/perfil.html'
@@ -133,8 +145,9 @@ router.post('/crear-mascota', upload.single('foto'), async (req, res) => {
 
     res.json({ id, url });
   } catch (err) {
-    console.error('Error creando mascota como admin:', err);
-    res.status(500).json({ error: 'Error interno del servidor.' });
+    console.error('❌ Error al crear mascota:', err.message);
+    console.error('🧠 Detalles:', err.stack);
+    res.status(500).json({ error: 'Error interno al crear la mascota.', detalle: err.message });
   }
 });
 
@@ -167,5 +180,30 @@ router.get('/dueno-por-correo', async (req, res) => {
   }
 });
 
-export default router;
+/* ===============================
+   GET /api/mascota/:id
+   (Muestra perfil público de mascota)
+================================ */
+router.get('/mascota/:id', async (req, res) => {
+  const id = req.params.id;
 
+  try {
+    const result = await pool.query(`
+      SELECT 
+        id, nombre, especie, raza, edad, estado, mensaje, historial_salud, foto
+      FROM mascotas
+      WHERE id = $1
+    `, [id]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Mascota no encontrada' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error al buscar mascota:', error);
+    res.status(500).json({ error: 'Error interno del servidor.' });
+  }
+});
+
+export default router;
