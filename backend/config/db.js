@@ -4,7 +4,7 @@ import pkg from 'pg';
 
 const { Pool } = pkg;
 
-// Cargar variables de entorno desde la carpeta backend
+// Cargar .env desde la carpeta backend
 dotenv.config({ path: path.resolve(process.cwd(), 'backend', '.env') });
 
 console.log('📍 Ruta del .env cargado:', path.resolve(process.cwd(), 'backend', '.env'));
@@ -15,18 +15,19 @@ if (!process.env.DATABASE_URL) {
   process.exit(1);
 }
 
-// Detectar si la conexión es local (localhost o 127.0.0.1)
+// Detectar si es conexión local
 const isLocal = process.env.DATABASE_URL.includes('localhost') || process.env.DATABASE_URL.includes('127.0.0.1');
 
-// Configurar Pool de pg con opción ssl adecuada
+// Crear pool con configuración IPv4 segura para Render
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: isLocal
-    ? false                       // Sin SSL si es local
-    : { rejectUnauthorized: false }, // Aceptar certificado autofirmado en producción/supabase
+  ssl: isLocal ? false : { rejectUnauthorized: false },
+  host: isLocal ? undefined : 'db.hfmfwrgnaxknywfbocrl.supabase.co', // ⬅️ Forzar IPv4 explícitamente en Render
+  port: 5432,
+  statement_timeout: 5000, // ⏱️ Previene bloqueos por lentitud
 });
 
-// Test rápido de conexión al iniciar el servidor
+// Probar conexión al iniciar
 (async () => {
   try {
     const client = await pool.connect();
