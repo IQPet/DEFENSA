@@ -1,11 +1,22 @@
-// backend/supabaseClient.js
 import { createClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
-dotenv.config();
+import { Agent } from 'undici';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY // ¡Service Role!
-);
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+
+// ⚠️ Forzar IPv4 en el agente HTTP de Undici
+const ipv4Agent = new Agent({
+  connect: {
+    family: 4, // ← aquí forzamos IPv4
+    timeout: 60_000
+  }
+});
+
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  global: {
+    fetch: (url, options) => fetch(url, { ...options, dispatcher: ipv4Agent }),
+  }
+});
 
 export default supabase;
+
