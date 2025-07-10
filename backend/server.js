@@ -231,8 +231,13 @@ app.get('/api/perfil/:id', async (req, res) => {
       return res.status(404).json({ error: 'Mascota no encontrada' });
     }
 
-    // La URL pública ya está en m.foto, no hay que reconstruirla
     const mascota = result.rows[0];
+
+    // URL base del bucket pública
+    const baseUrl = 'https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/';
+
+    // Construir la URL pública solo si foto existe
+    mascota.foto_url = mascota.foto ? baseUrl + mascota.foto : null;
 
     res.json(mascota);
 
@@ -241,6 +246,7 @@ app.get('/api/perfil/:id', async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
+
 
 
 // ⚠️ Agrega esto justo ANTES del app.post('/api/validar-dueno')
@@ -323,14 +329,14 @@ app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
 
     const duenoId = duenoQuery.rows[0].dueno_id;
 
-    let urlPublicaFoto = null;
+    let fileName = null;
 
     if (req.file) {
       const fileExt = req.file.originalname.split('.').pop();
-      const fileName = `mascota_${mascotaId}_${Date.now()}.${fileExt}`;
+      fileName = `mascota_${mascotaId}.${fileExt}`;  // Nombre fijo sin timestamp
 
       try {
-        // Subir la imagen a Supabase Storage
+        // Subir la imagen a Supabase Storage (con upsert para reemplazar)
         const { data, error } = await supabase.storage
           .from('mascotas')
           .upload(fileName, req.file.buffer, {
@@ -340,15 +346,7 @@ app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
 
         if (error) throw error;
 
-        // Obtener URL pública completa
-        const { publicURL, error: urlError } = supabase.storage
-          .from('mascotas')
-          .getPublicUrl(fileName);
-
-        if (urlError) throw urlError;
-
-        urlPublicaFoto = publicURL;
-        console.log('✅ URL pública de la foto subida:', urlPublicaFoto);
+        console.log('✅ Imagen subida a Supabase con nombre:', fileName);
 
       } catch (supabaseError) {
         console.error('❌ Error subiendo imagen a Supabase:', supabaseError);
@@ -362,7 +360,7 @@ app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
     // Construir consulta y parámetros para actualizar la mascota
     let queryMascota, paramsMascota;
 
-    if (urlPublicaFoto) {
+    if (fileName) {
       queryMascota = `
         UPDATE mascotas
         SET nombre = $1, estado = $2, mensaje = $3, especie = $4, raza = $5,
@@ -377,7 +375,7 @@ app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
         raza,
         edad,
         historial_salud,
-        urlPublicaFoto,
+        fileName,
         mascotaId
       ];
     } else {
@@ -406,12 +404,6 @@ app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
 
     console.log('✅ Resultado actualización mascota:', result);
 
-    // Verificar actualización de la foto en la base de datos
-    if (urlPublicaFoto) {
-      const checkFoto = await pool.query('SELECT foto FROM mascotas WHERE id = $1', [mascotaId]);
-      console.log('🔍 Foto actual en BD:', checkFoto.rows[0].foto);
-    }
-
     // Actualizar datos del dueño
     const queryDueno = `
       UPDATE duenos
@@ -437,6 +429,7 @@ app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
     });
   }
 });
+
 
 
 console.log("🛠️ Versión corregida sin path-to-regexp directa");
