@@ -290,7 +290,8 @@ app.post('/api/validar-dueno', cors(corsOptions), async (req, res) => {
 
 // ✏️ Actualizar perfil
 console.log('Definiendo ruta PUT /api/editar-perfil/:id');
-app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
+app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
+
   console.log('📂 req.file:', req.file);  // Multer recibe la imagen
   console.log('📋 req.body:', req.body);  // Datos del formulario
 

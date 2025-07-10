@@ -77,11 +77,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     try {
-      const res = await fetch(`https://defensa-1.onrender.com/api/editar-perfil/${mascotaId}`, {
-        method: "PUT",
-        body: formData,
-      });
-
+     const res = await fetch(`https://defensa-1.onrender.com/api/editar-perfil/${mascotaId}`, {
+  method: "POST",
+  body: formData,
+});
       const result = await res.json();
 
       if (!res.ok) throw new Error(result.error || "Error actualizando perfil");
