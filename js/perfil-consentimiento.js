@@ -33,7 +33,7 @@ async function recolectarDatos(consiente) {
 
       const aviso = document.getElementById("ubicacion-aviso");
       if (aviso && mejor.accuracy > 50000) {
-        aviso.textContent = ""; 
+        aviso.textContent = "";
       }
     }
   }
@@ -182,12 +182,12 @@ async function enviarNotificacion(datos) {
   }
 }
 
-// Nueva función para ocultar el modal con transición
+// ✅ Ocultar modal con atributo hidden (más robusto en producción)
 function ocultarModal(modal) {
   modal.style.opacity = "0";
   modal.style.pointerEvents = "none";
   setTimeout(() => {
-    modal.style.display = "none";
+    modal.setAttribute("hidden", true);
   }, 300);
 }
 

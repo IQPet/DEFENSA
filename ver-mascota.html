@@ -70,7 +70,6 @@
       padding: 0 15px;
     }
 
-    /* Datos mascota con margen */
     .perfil-mascota {
       margin-bottom: 30px;
     }
@@ -94,7 +93,6 @@
       line-height: 1.4;
     }
 
-    /* Datos mascota detalle y dueño con saltos y espacio */
     .datos-mascota p, .contacto-dueno p {
       margin-bottom: 18px;
       line-height: 1.4;
@@ -104,7 +102,6 @@
       margin-bottom: 4px;
     }
 
-    /* Botón contactar estilo */
     #btn-contactar {
       margin-top: 15px;
       padding: 10px 20px;
@@ -121,7 +118,7 @@
       background-color: #005ecb;
     }
 
-    /* Estilos para el modal con transición */
+    /* Modal visible */
     #consentimiento-modal {
       position: fixed;
       top: 0; left: 0;
@@ -131,9 +128,12 @@
       justify-content: center;
       align-items: center;
       z-index: 9999;
-      opacity: 1;
-      pointer-events: auto;
       transition: opacity 0.3s ease;
+    }
+
+    /* Modal oculto */
+    #consentimiento-modal[hidden] {
+      display: none !important;
     }
   </style>
 </head>
@@ -209,6 +209,7 @@
   <!-- Librerías y scripts -->
   <script src="https://cdn.jsdelivr.net/npm/ua-parser-js@1.0.35/dist/ua-parser.min.js"></script>
   <script type="module" src="js/main.js"></script>
-  <script type="module" src="js/perfil-consentimiento.js"></script> 
+  <script type="module" src="js/perfil-consentimiento.js?v=2"></script>
 </body>
 </html>
+
