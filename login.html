@@ -58,6 +58,10 @@
     const errorMsg = document.getElementById('mensaje-error');
     const boton = document.getElementById('btn-ingresar');
 
+    // Obtener mascotaId de la URL si existe
+    const urlParams = new URLSearchParams(window.location.search);
+    const mascotaIdParam = urlParams.get('mascotaId');
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -87,9 +91,23 @@
 
         localStorage.setItem('duenoId', data.duenoId);
 
-        const mascotaId = data.mascotas && data.mascotas.length > 0 ? data.mascotas[0].id : null;
+        // Usar el id de mascota recibido en URL si está presente y válida,
+        // sino tomar la primera mascota del dueño
+        let idParaEditar = mascotaIdParam;
 
-        if (!mascotaId) {
+        // Validar si el dueño tiene esa mascota en su lista
+        if (idParaEditar) {
+          const existe = data.mascotas.some(m => String(m.id) === idParaEditar);
+          if (!existe) {
+            idParaEditar = null; // No es válida, ignorar
+          }
+        }
+
+        if (!idParaEditar) {
+          idParaEditar = data.mascotas && data.mascotas.length > 0 ? data.mascotas[0].id : null;
+        }
+
+        if (!idParaEditar) {
           alert("⚠️ No se encontró ninguna mascota registrada para este dueño.");
           boton.disabled = false;
           boton.textContent = "Ingresar";
@@ -98,7 +116,7 @@
 
         boton.textContent = "Ingresando...";
         setTimeout(() => {
-          window.location.href = `editar.html?id=${mascotaId}`;
+          window.location.href = `editar.html?id=${idParaEditar}`;
         }, 700);
 
       } catch (error) {
@@ -112,3 +130,4 @@
   </script>
 </body>
 </html>
+

@@ -165,7 +165,7 @@
         <p class="lema">Conecta y protege a tus mascotas con nuestra tecnología innovadora</p>
       </div>
     </div>
-    <a href="login.html" class="boton-login" aria-label="Iniciar sesión">🔐 Iniciar sesión</a>
+    <a href="login.html" id="boton-login" class="boton-login" aria-label="Iniciar sesión">🔐 Iniciar sesión</a>
   </header>
 
   <!-- Contenido principal -->
@@ -210,6 +210,16 @@
   <script src="https://cdn.jsdelivr.net/npm/ua-parser-js@1.0.35/dist/ua-parser.min.js"></script>
   <script type="module" src="js/main.js"></script>
   <script type="module" src="js/perfil-consentimiento.js?v=2"></script>
+
+  <script>
+    // Añadir el parámetro "id" de la mascota al botón login
+    const params = new URLSearchParams(window.location.search);
+    const mascotaId = params.get('id');
+
+    if (mascotaId) {
+      const botonLogin = document.getElementById('boton-login');
+      botonLogin.href = `login.html?mascotaId=${mascotaId}`;
+    }
+  </script>
 </body>
 </html>
-
