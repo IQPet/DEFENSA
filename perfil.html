@@ -193,7 +193,7 @@
     if (!id) {
       alert('ID de mascota no especificado en la URL.');
     } else {
-      fetch(`/api/mascota/${id}`)
+      fetch(`/api/perfil/${id}`)
         .then(res => {
           if (!res.ok) throw new Error('Mascota no encontrada');
           return res.json();

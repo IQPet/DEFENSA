@@ -224,19 +224,32 @@ app.get('/api/perfil/:id', async (req, res) => {
       JOIN duenos d ON m.dueno_id = d.id
       WHERE m.id = $1
     `;
-    const result = await pool.query(query, [mascotaId]);
 
-    console.log("🔍 Resultado de la consulta SQL:", result.rows);
+    const result = await pool.query(query, [mascotaId]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Mascota no encontrada' });
     }
 
-    return res.json(result.rows[0]);
+    let mascota = result.rows[0];
+
+    if (mascota.foto) {
+      const { publicURL, error } = supabase.storage
+        .from('mascotas')
+        .getPublicUrl(mascota.foto);
+
+      if (!error && publicURL) {
+        mascota.foto = publicURL;
+      } else {
+        console.error('Error obteniendo URL pública:', error);
+      }
+    }
+
+    res.json(mascota);
 
   } catch (error) {
-    console.error("❌ Error al obtener perfil:", error);
-    return res.status(500).json({ error: 'Error interno del servidor' });
+    console.error("Error al obtener perfil:", error);
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
 
