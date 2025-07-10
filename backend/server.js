@@ -199,61 +199,24 @@ ${linkMapa ? `🌎 Ver en mapa: ${linkMapa}` : ''}
   }
 });
 
-// 🔍 Obtener datos del perfil
+// 🔍 Obtener datos del perfil (respuesta fija)
 console.log('Definiendo ruta GET /api/perfil/:id');
-app.get('/api/perfil/:id', async (req, res) => {
-  const mascotaId = req.params.id;
+app.get('/api/perfil/:id', (req, res) => {
+  // Ignoramos el id recibido y respondemos con el objeto fijo
+  const dataFija = {
+    id: 1,
+    dueno_id: 1,
+    nombre: "Snoopy",
+    especie: "Perro",
+    raza: "Pequines",
+    edad: "3 meses",
+    historial_salud: "Vacunado y desparasitado",
+    estado: "En casa",
+    mensaje: "Hola me he perdido ayúdame a estar en casa",
+    foto: "https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas//premium_photo-1694819488591-a43907d1c5cc.jpg"
+  };
 
-  try {
-    const query = `
-      SELECT 
-        m.id AS mascota_id,
-        m.nombre AS nombre_mascota,
-        m.foto,
-        m.edad,
-        m.raza,
-        m.especie,
-        m.estado,
-        m.historial_salud,
-        m.mensaje AS mensaje_mascota,
-        d.nombre AS nombre_dueno,
-        d.telefono,
-        d.correo,
-        d.mensaje AS mensaje_dueno
-      FROM mascotas m
-      JOIN duenos d ON m.dueno_id = d.id
-      WHERE m.id = $1
-    `;
-
-    const result = await pool.query(query, [mascotaId]);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Mascota no encontrada' });
-    }
-
-    const mascota = result.rows[0];
-
-    // Evaluar si el campo foto ya es una URL completa o solo el nombre del archivo
-    const fotoCampo = mascota.foto ? mascota.foto.trim() : '';
-
-    if (fotoCampo.startsWith('http://') || fotoCampo.startsWith('https://')) {
-      mascota.foto_url = fotoCampo; // Ya es URL completa
-    } else if (fotoCampo.length > 0) {
-      const baseUrl = 'https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/';
-      mascota.foto_url = baseUrl + fotoCampo;
-    } else {
-      mascota.foto_url = null;
-    }
-
-    // Eliminar campo foto original para no enviar el nombre del archivo crudo
-    delete mascota.foto;
-
-    res.json(mascota);
-
-  } catch (error) {
-    console.error("❌ Error al obtener perfil:", error);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
+  return res.json(dataFija);
 });
 
 // ✏️ Actualizar perfil
@@ -413,7 +376,6 @@ app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
     });
   }
 });
-
 
 
 console.log("🛠️ Versión corregida sin path-to-regexp directa");
