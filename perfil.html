@@ -153,9 +153,9 @@
         return res.json();
       })
       .then(data => {
-        const fallbackFoto = 'https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/default.jpg';
-const foto = (data.foto_url && data.foto_url !== 'null') ? data.foto_url : fallbackFoto;
+        const foto = data.foto || 'https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/default.jpg';
 document.getElementById('foto-mascota').src = foto;
+
 
         document.getElementById('nombre-mascota').textContent = data.nombre || 'Sin nombre';
         document.getElementById('estado').textContent = data.estado || '';
