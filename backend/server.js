@@ -234,9 +234,12 @@ app.get('/api/perfil/:id', async (req, res) => {
     let mascota = result.rows[0];
 
     if (mascota.foto) {
+      // Limpia el path si empieza con 'imagenes/mascotas/'
+      const rutaLimpia = mascota.foto.replace(/^imagenes\/mascotas\//, '');
+
       const { publicURL, error } = supabase.storage
         .from('mascotas')
-        .getPublicUrl(mascota.foto);
+        .getPublicUrl(rutaLimpia);
 
       if (!error && publicURL) {
         mascota.foto = publicURL;
@@ -252,6 +255,7 @@ app.get('/api/perfil/:id', async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
+
 
 // ⚠️ Agrega esto justo ANTES del app.post('/api/validar-dueno')
 app.options('/api/validar-dueno', cors(corsOptions), (req, res) => {
