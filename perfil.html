@@ -187,43 +187,36 @@
   <script src="https://cdn.jsdelivr.net/npm/ua-parser-js@1.0.35/dist/ua-parser.min.js"></script>
 
   <script type="module">
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('id');
+    const id = '1'; // Mascota fija con ID 1
 
-    if (!id) {
-      alert('ID de mascota no especificado en la URL.');
-    } else {
-      fetch(`/api/perfil/${id}`)
-        .then(res => {
-          if (!res.ok) throw new Error('Mascota no encontrada');
-          return res.json();
-        })
-        .then(data => {
-          // 👇 Usamos directamente la URL de Supabase (ya completa desde backend)
-          const foto = data.foto || 'default.png';
-          document.getElementById('foto-mascota').src = foto;
+    fetch(`/api/perfil/${id}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Mascota no encontrada');
+        return res.json();
+      })
+      .then(data => {
+        const foto = data.foto || 'default.png';
+        document.getElementById('foto-mascota').src = foto;
 
-          document.getElementById('nombre-mascota').textContent = data.nombre || 'Sin nombre';
-          document.getElementById('estado').textContent = data.estado || '';
-          document.getElementById('mensaje-mascota').textContent = data.mensaje || '';
-          document.getElementById('especie').textContent = data.especie || '';
-          document.getElementById('raza').textContent = data.raza || '';
-          document.getElementById('edad').textContent = data.edad || '';
-          document.getElementById('historial_salud').textContent = data.historial_salud || '';
-          
-          // Corregido para usar propiedades que devuelve el backend
-          document.getElementById('nombre-dueno').textContent = data.nombre_dueno || '';
-          document.getElementById('telefono-dueno').textContent = data.telefono || '';
-          document.getElementById('correo-dueno').textContent = data.correo || '';
-          document.getElementById('mensaje-dueno').textContent = data.mensaje_dueno || '';
+        document.getElementById('nombre-mascota').textContent = data.nombre || 'Sin nombre';
+        document.getElementById('estado').textContent = data.estado || '';
+        document.getElementById('mensaje-mascota').textContent = data.mensaje || '';
+        document.getElementById('especie').textContent = data.especie || '';
+        document.getElementById('raza').textContent = data.raza || '';
+        document.getElementById('edad').textContent = data.edad || '';
+        document.getElementById('historial_salud').textContent = data.historial_salud || '';
 
-          document.getElementById('editar-perfil').href = `editar.html?id=${id}`;
-        })
-        .catch(err => {
-          console.error(err);
-          alert('❌ Mascota no encontrada o error al cargar los datos.');
-        });
-    }
+        document.getElementById('nombre-dueno').textContent = data.nombre_dueno || '';
+        document.getElementById('telefono-dueno').textContent = data.telefono || '';
+        document.getElementById('correo-dueno').textContent = data.correo || '';
+        document.getElementById('mensaje-dueno').textContent = data.mensaje_dueno || '';
+
+        document.getElementById('editar-perfil').href = `editar.html?id=${id}`;
+      })
+      .catch(err => {
+        console.error(err);
+        alert('❌ Mascota no encontrada o error al cargar los datos.');
+      });
   </script>
 
   <!-- Scripts del proyecto -->
@@ -232,6 +225,7 @@
 
 </body>
 </html>
+
 
 
 
