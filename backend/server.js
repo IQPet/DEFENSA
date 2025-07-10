@@ -239,6 +239,9 @@ app.get('/api/perfil/:id', async (req, res) => {
     // Construir la URL pública solo si foto existe
     mascota.foto_url = mascota.foto ? baseUrl + mascota.foto : null;
 
+    // Opcional: eliminar campo foto original para no enviar el nombre del archivo crudo
+    delete mascota.foto;
+
     res.json(mascota);
 
   } catch (error) {
@@ -246,7 +249,6 @@ app.get('/api/perfil/:id', async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
-
 
 
 // ⚠️ Agrega esto justo ANTES del app.post('/api/validar-dueno')
@@ -429,7 +431,6 @@ app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
     });
   }
 });
-
 
 
 console.log("🛠️ Versión corregida sin path-to-regexp directa");
