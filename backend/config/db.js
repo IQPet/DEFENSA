@@ -15,18 +15,12 @@ if (!process.env.DATABASE_URL) {
   process.exit(1);
 }
 
-// Detectar si es local
-const isLocal = process.env.DATABASE_URL.includes('localhost') || process.env.DATABASE_URL.includes('127.0.0.1');
-
-// 🔐 Conectar usando configuración SSL condicional
+// 🔐 Conectar usando configuración SSL con certificados autofirmados (necesario para Supabase Pooler)
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: isLocal
-    ? false
-    : {
-        rejectUnauthorized: false,
-        minVersion: 'TLSv1.2'
-      },
+  ssl: {
+    rejectUnauthorized: false, // ✅ Importante para evitar el error de certificado autofirmado
+  },
 });
 
 // Probar conexión
@@ -42,3 +36,4 @@ const pool = new Pool({
 })();
 
 export default pool;
+
