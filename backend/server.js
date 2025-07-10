@@ -326,7 +326,7 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
 
     if (req.file) {
       const fileExt = req.file.originalname.split('.').pop();
-      const fileName = `mascotas/mascota_${mascotaId}_${Date.now()}.${fileExt}`;
+      const fileName = `mascota_${mascotaId}_${Date.now()}.${fileExt}`;
 
       try {
         // Subir la imagen a Supabase Storage
