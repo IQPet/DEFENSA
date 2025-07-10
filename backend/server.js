@@ -340,14 +340,13 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
 
     const duenoId = duenoQuery.rows[0].dueno_id;
 
-    let urlFotoPublica = null;
+    let rutaRelativaFoto = null;
 
     if (req.file) {
       const fileExt = req.file.originalname.split('.').pop();
       const fileName = `mascotas/mascota_${mascotaId}_${Date.now()}.${fileExt}`;
 
       try {
-        // Subir imagen a Supabase Storage
         const { data, error } = await supabase.storage
           .from('mascotas')
           .upload(fileName, req.file.buffer, {
@@ -357,34 +356,39 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
 
         if (error) throw error;
 
-        const { publicURL, error: urlError } = supabase.storage.from('mascotas').getPublicUrl(fileName);
+        // ✅ Solo guardamos la ruta relativa en la base de datos
+        rutaRelativaFoto = fileName;
 
-        if (urlError) throw urlError;
-
-        urlFotoPublica = publicURL;
       } catch (supabaseError) {
         console.error('❌ Error subiendo imagen a Supabase:', supabaseError);
         return res.status(500).json({ error: 'Error subiendo imagen a Supabase', detalle: supabaseError.message });
       }
     }
 
-    const queryMascota = `
+    let queryMascota = `
       UPDATE mascotas
       SET nombre = $1, estado = $2, mensaje = $3, especie = $4, raza = $5, edad = $6,
-          historial_salud = $7${urlFotoPublica ? `, foto = '${urlFotoPublica}'` : ''}
-      WHERE id = $8
+          historial_salud = $7
     `;
-
-    await pool.query(queryMascota, [
+    const paramsMascota = [
       nombre_mascota,
       estado,
       mensaje_mascota,
       especie,
       raza,
       edad,
-      historial_salud,
-      mascotaId
-    ]);
+      historial_salud
+    ];
+
+    if (rutaRelativaFoto) {
+      queryMascota += `, foto = $8 WHERE id = $9`;
+      paramsMascota.push(rutaRelativaFoto, mascotaId);
+    } else {
+      queryMascota += ` WHERE id = $8`;
+      paramsMascota.push(mascotaId);
+    }
+
+    await pool.query(queryMascota, paramsMascota);
 
     const queryDueno = `
       UPDATE duenos
@@ -407,7 +411,6 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
     res.status(500).json({ error: 'Error al actualizar el perfil', detalle: error.message });
   }
 });
-
 
 console.log("🛠️ Versión corregida sin path-to-regexp directa");
 
