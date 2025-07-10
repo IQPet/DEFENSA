@@ -393,6 +393,80 @@ app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
 });
 
 
+    // Construir consulta y parámetros para actualizar la mascota
+    let queryMascota, paramsMascota;
+
+    if (fileName) {
+      queryMascota = `
+        UPDATE mascotas
+        SET nombre = $1, estado = $2, mensaje = $3, especie = $4, raza = $5,
+            edad = $6, historial_salud = $7, foto = $8
+        WHERE id = $9
+      `;
+      paramsMascota = [
+        nombre_mascota,
+        estado,
+        mensaje_mascota,
+        especie,
+        raza,
+        edad,
+        historial_salud,
+        fileName,
+        mascotaId
+      ];
+    } else {
+      queryMascota = `
+        UPDATE mascotas
+        SET nombre = $1, estado = $2, mensaje = $3, especie = $4, raza = $5,
+            edad = $6, historial_salud = $7
+        WHERE id = $8
+      `;
+      paramsMascota = [
+        nombre_mascota,
+        estado,
+        mensaje_mascota,
+        especie,
+        raza,
+        edad,
+        historial_salud,
+        mascotaId
+      ];
+    }
+
+    console.log('📤 Ejecutando query actualización mascota:', queryMascota);
+    console.log('📋 Con parámetros:', paramsMascota);
+
+    const result = await pool.query(queryMascota, paramsMascota);
+
+    console.log('✅ Resultado actualización mascota:', result);
+
+    // Actualizar datos del dueño
+    const queryDueno = `
+      UPDATE duenos
+      SET nombre = $1, telefono = $2, correo = $3, mensaje = $4
+      WHERE id = $5
+    `;
+
+    await pool.query(queryDueno, [
+      nombre_dueno,
+      telefono,
+      correo,
+      mensaje_dueno,
+      duenoId
+    ]);
+
+    res.json({ mensaje: 'Perfil actualizado correctamente' });
+
+  } catch (error) {
+    console.error('❌ Error actualizando perfil:', error);
+    res.status(500).json({
+      error: 'Error al actualizar el perfil',
+      detalle: error.message
+    });
+  }
+});
+
+
 console.log("🛠️ Versión corregida sin path-to-regexp directa");
 
 // 🧪 Ruta temporal para testear conectividad con Supabase
