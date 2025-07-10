@@ -234,31 +234,33 @@ app.get('/api/perfil/:id', async (req, res) => {
     let mascota = result.rows[0];
 
     if (mascota.foto) {
-      let rutaLimpia = mascota.foto;
+      let rutaRelativa = mascota.foto.trim();
 
-      // Quita el prefijo si lo tiene
-      if (rutaLimpia.startsWith('mascotas/')) {
-        rutaLimpia = rutaLimpia.replace('mascotas/', '');
+      // Verifica si contiene el prefijo 'mascotas/' o no
+      if (!rutaRelativa.startsWith('mascotas/')) {
+        rutaRelativa = `mascotas/${rutaRelativa}`;
       }
 
       const { publicURL, error } = supabase.storage
         .from('mascotas')
-        .getPublicUrl(rutaLimpia);
+        .getPublicUrl(rutaRelativa);
 
       if (!error && publicURL) {
         mascota.foto = publicURL;
       } else {
-        console.error('Error obteniendo URL pública:', error);
+        console.error('❌ Error obteniendo URL pública:', error?.message || 'Sin detalle');
+        mascota.foto = null; // Previene links rotos en el frontend
       }
     }
 
     res.json(mascota);
 
   } catch (error) {
-    console.error("Error al obtener perfil:", error);
+    console.error("❌ Error al obtener perfil:", error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
+
 
 // ⚠️ Agrega esto justo ANTES del app.post('/api/validar-dueno')
 app.options('/api/validar-dueno', cors(corsOptions), (req, res) => {
