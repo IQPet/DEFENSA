@@ -1,60 +1,255 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Crear Mascota (Admin)</title>
   <style>
+    /* Reset básico */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: sans-serif;
-      max-width: 700px;
-      margin: 20px auto;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #cfd8dc;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 15px 8px;
+      overflow-x: hidden;
+    }
+
+    main {
+      background: #1e2d3d;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+      width: 100%;
+      max-width: 450px;
+      padding: 20px 20px 30px;
+    }
+
+    h1 {
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.9rem;
+      color: #90caf9;
+      margin-bottom: 25px;
+      text-shadow: 0 0 6px #90caf9aa;
+      line-height: 1.2;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    fieldset {
+      border: 2px solid #42a5f5;
+      border-radius: 10px;
+      padding: 18px 20px;
+      background: #162433;
+      box-shadow: inset 0 0 15px #42a5f533;
+    }
+
+    legend {
+      padding: 0 10px;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: #64b5f6;
+      text-shadow: 0 0 4px #64b5f6bb;
     }
 
     label {
-      display: block;
-      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      font-size: 1.05rem;
+      color: #b0bec5;
+      margin-bottom: 10px;
+      user-select: none;
     }
 
-    img#preview-foto {
-      max-width: 200px;
-      margin-top: 10px;
-      display: none;
+    input[type="text"],
+    input[type="email"],
+    input[type="file"],
+    select,
+    textarea {
+      margin-top: 6px;
+      background: #29405a;
+      border: 1.8px solid #42a5f5;
       border-radius: 8px;
-      border: 1px solid #ccc;
+      padding: 12px 14px;
+      color: #cfd8dc;
+      font-size: 1.1rem;
+      font-weight: 500;
+      outline-offset: 2px;
+      transition: border-color 0.3s ease;
+      font-family: inherit;
+      resize: vertical;
+      width: 100%;
+      min-width: 0; /* evita overflow */
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="file"]:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #90caf9;
+      background: #33577a;
+      box-shadow: 0 0 6px #90caf9aa;
+    }
+
+    textarea {
+      min-height: 80px;
+      max-height: 140px;
+    }
+
+    #preview-foto {
+      max-width: 180px;
+      border-radius: 10px;
+      border: 2px solid #42a5f5;
+      margin-top: 12px;
+      display: none;
+      box-shadow: 0 0 8px #42a5f5aa;
+      align-self: center;
+      object-fit: cover;
+      max-height: 180px;
+      width: 100%;
+      max-width: 180px;
+    }
+
+    button[type="submit"] {
+      background: linear-gradient(90deg, #42a5f5, #90caf9);
+      border: none;
+      color: #1e2d3d;
+      font-weight: 700;
+      font-size: 1.3rem;
+      padding: 16px 0;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 5px 14px #42a5f5bb;
+      transition: background 0.3s ease, color 0.3s ease;
+      user-select: none;
+      width: 100%;
+      min-width: 0;
+    }
+
+    button[type="submit"]:hover,
+    button[type="submit"]:focus {
+      background: #90caf9;
+      color: #0f2027;
+      box-shadow: 0 0 20px #90caf9dd;
+      outline: none;
+    }
+
+    /* Ajustes para pantallas muy pequeñas */
+    @media (max-width: 360px) {
+      main {
+        max-width: 100%;
+        padding: 18px 15px 25px;
+        border-radius: 10px;
+      }
+
+      h1 {
+        font-size: 1.7rem;
+      }
+
+      label {
+        font-size: 1rem;
+        margin-bottom: 8px;
+      }
+
+      input[type="text"],
+      input[type="email"],
+      input[type="file"],
+      select,
+      textarea {
+        font-size: 1rem;
+        padding: 10px 12px;
+      }
+
+      button[type="submit"] {
+        font-size: 1.15rem;
+        padding: 14px 0;
+      }
     }
   </style>
   <script src="js/crear-mascota-admin.js" defer></script>
 </head>
 <body>
-  <h1>➕ Crear Mascota (como admin)</h1>
+  <main>
+    <h1>➕ Crear Mascota (como admin)</h1>
 
-  <form id="form-mascota" enctype="multipart/form-data">
-    <fieldset>
-      <legend><strong>🐶 Datos de la Mascota</strong></legend>
-      <label>Nombre: <input type="text" name="nombre" required></label>
-      <label>Especie: <input type="text" name="especie"></label>
-      <label>Raza: <input type="text" name="raza"></label>
-      <label>Edad: <input type="text" name="edad"></label>
-      <label for="estado">Estado:</label>
-      <select name="estado" required>
-  <option value="Perdida">Perdida</option>
-  <option value="En casa">En casa</option>
-</select>
-      <label>Mensaje: <input type="text" name="mensaje"></label>
-      <label>Historial salud: <textarea name="historial_salud" rows="3"></textarea></label>
-      <label>Foto: <input type="file" name="foto" id="foto" accept="image/*" required></label>
-      <img id="preview-foto" alt="Vista previa de la foto">
-    </fieldset>
+    <form id="form-mascota" enctype="multipart/form-data" novalidate>
+      <fieldset>
+        <legend>🐶 Datos de la Mascota</legend>
 
-    <fieldset>
-      <legend><strong>👤 Datos del Dueño</strong></legend>
-      <label>Correo del dueño: <input type="email" name="correo" id="correo" required></label>
-      <label>Nombre del dueño: <input type="text" name="dueno_nombre" id="dueno_nombre"></label>
-      <label>Teléfono: <input type="text" name="telefono" id="telefono"></label>
-      <label>Mensaje del dueño: <input type="text" name="mensaje_dueno" id="mensaje_dueno"></label>
-    </fieldset>
+        <label for="nombre">Nombre:
+          <input type="text" name="nombre" id="nombre" required autocomplete="off" />
+        </label>
 
-    <button type="submit" style="margin-top: 20px;">✅ Crear Perfil</button>
-  </form>
+        <label for="especie">Especie:
+          <input type="text" name="especie" id="especie" autocomplete="off" />
+        </label>
+
+        <label for="raza">Raza:
+          <input type="text" name="raza" id="raza" autocomplete="off" />
+        </label>
+
+        <label for="edad">Edad:
+          <input type="text" name="edad" id="edad" autocomplete="off" />
+        </label>
+
+        <label for="estado">Estado:
+          <select name="estado" id="estado" required>
+            <option value="Perdida">Perdida</option>
+            <option value="En casa">En casa</option>
+          </select>
+        </label>
+
+        <label for="mensaje">Mensaje:
+          <input type="text" name="mensaje" id="mensaje" autocomplete="off" />
+        </label>
+
+        <label for="historial_salud">Historial salud:
+          <textarea name="historial_salud" id="historial_salud" rows="3"></textarea>
+        </label>
+
+        <label for="foto">Foto:
+          <input type="file" name="foto" id="foto" accept="image/*" required />
+        </label>
+
+        <img id="preview-foto" alt="Vista previa de la foto" />
+      </fieldset>
+
+      <fieldset>
+        <legend>👤 Datos del Dueño</legend>
+
+        <label for="correo">Correo del dueño:
+          <input type="email" name="correo" id="correo" required autocomplete="off" />
+        </label>
+
+        <label for="dueno_nombre">Nombre del dueño:
+          <input type="text" name="dueno_nombre" id="dueno_nombre" autocomplete="off" />
+        </label>
+
+        <label for="telefono">Teléfono:
+          <input type="text" name="telefono" id="telefono" autocomplete="off" />
+        </label>
+
+        <label for="mensaje_dueno">Mensaje del dueño:
+          <input type="text" name="mensaje_dueno" id="mensaje_dueno" autocomplete="off" />
+        </label>
+      </fieldset>
+
+      <button type="submit">✅ Crear Perfil</button>
+    </form>
+  </main>
 </body>
 </html>
+
+
