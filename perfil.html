@@ -153,12 +153,14 @@
         return res.json();
       })
       .then(data => {
-        const foto = data.foto_url || 'https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/premium_photo-1694819488591-a43907d1c5cc.jpg';
-       document.getElementById('foto-mascota').src = foto;
+        // Imagen fija, siempre la misma URL
+        const fotoFija = 'https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/premium_photo-1694819488591-a43907d1c5cc.jpg';
+        document.getElementById('foto-mascota').src = fotoFija;
 
-        document.getElementById('nombre-mascota').textContent = data.nombre || 'Sin nombre';
+        // El resto de datos dinámicos desde el backend
+        document.getElementById('nombre-mascota').textContent = data.nombre_mascota || 'Sin nombre';
         document.getElementById('estado').textContent = data.estado || '';
-        document.getElementById('mensaje-mascota').textContent = data.mensaje || '';
+        document.getElementById('mensaje-mascota').textContent = data.mensaje_mascota || '';
         document.getElementById('especie').textContent = data.especie || '';
         document.getElementById('raza').textContent = data.raza || '';
         document.getElementById('edad').textContent = data.edad || '';
@@ -180,8 +182,5 @@
 
 </body>
 </html>
-
-
-
 
 
