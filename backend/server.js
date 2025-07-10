@@ -236,10 +236,11 @@ app.get('/api/perfil/:id', async (req, res) => {
     // URL base del bucket pública
     const baseUrl = 'https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/';
 
-    // Construir la URL pública solo si foto existe
-    mascota.foto_url = mascota.foto ? baseUrl + mascota.foto : null;
+    // Construir la URL pública solo si foto existe y no es cadena vacía
+    const fotoArchivo = mascota.foto ? mascota.foto.trim() : '';
+    mascota.foto_url = fotoArchivo.length > 0 ? baseUrl + fotoArchivo : null;
 
-    // Opcional: eliminar campo foto original para no enviar el nombre del archivo crudo
+    // Eliminar campo foto original para no enviar el nombre del archivo crudo
     delete mascota.foto;
 
     res.json(mascota);
@@ -249,6 +250,7 @@ app.get('/api/perfil/:id', async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
+
 
 
 // ⚠️ Agrega esto justo ANTES del app.post('/api/validar-dueno')
