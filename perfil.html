@@ -70,6 +70,13 @@
       margin: 0 auto 40px;
       padding: 0 15px;
     }
+
+    /* Aseguramos mínimo ancho para los spans del dueño */
+    .contacto-dueno span {
+      display: inline-block;
+      min-width: 60px;
+      word-break: break-word;
+    }
   </style>
 </head>
 <body>
@@ -169,20 +176,20 @@
     };
 
     try {
-      // Asignar valores estáticos al HTML
-      document.getElementById('foto-mascota').src = mascota.foto;
-      document.getElementById('nombre-mascota').textContent = mascota.nombre;
-      document.getElementById('estado').textContent = mascota.estado;
-      document.getElementById('mensaje-mascota').textContent = mascota.mensaje;
-      document.getElementById('especie').textContent = mascota.especie;
-      document.getElementById('raza').textContent = mascota.raza;
-      document.getElementById('edad').textContent = mascota.edad;
-      document.getElementById('historial_salud').textContent = mascota.historial_salud;
+      // Asignar valores estáticos al HTML con fallback en caso vacío
+      document.getElementById('foto-mascota').src = mascota.foto || '';
+      document.getElementById('nombre-mascota').textContent = mascota.nombre || '(sin dato)';
+      document.getElementById('estado').textContent = mascota.estado || '(sin dato)';
+      document.getElementById('mensaje-mascota').textContent = mascota.mensaje || '(sin dato)';
+      document.getElementById('especie').textContent = mascota.especie || '(sin dato)';
+      document.getElementById('raza').textContent = mascota.raza || '(sin dato)';
+      document.getElementById('edad').textContent = mascota.edad || '(sin dato)';
+      document.getElementById('historial_salud').textContent = mascota.historial_salud || '(sin dato)';
 
-      document.getElementById('nombre-dueno').textContent = dueno.nombre;
-      document.getElementById('telefono-dueno').textContent = dueno.telefono;
-      document.getElementById('correo-dueno').textContent = dueno.correo;
-      document.getElementById('mensaje-dueno').textContent = dueno.mensaje;
+      document.getElementById('nombre-dueno').textContent = dueno.nombre || '(sin dato)';
+      document.getElementById('telefono-dueno').textContent = dueno.telefono || '(sin dato)';
+      document.getElementById('correo-dueno').textContent = dueno.correo || '(sin dato)';
+      document.getElementById('mensaje-dueno').textContent = dueno.mensaje || '(sin dato)';
     } catch (err) {
       console.error('Error cargando datos estáticos del perfil:', err);
       // No mostramos nada al usuario
@@ -197,8 +204,7 @@
       window.open(`https://wa.me/${dueno.telefono}`, '_blank');
     });
   });
-</script>
-
+  </script>
 
   <!-- Scripts del proyecto -->
   <script type="module" src="js/main.js"></script>
