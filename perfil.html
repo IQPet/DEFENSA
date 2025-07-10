@@ -144,46 +144,56 @@
   <!-- Librerías y scripts -->
   <script src="https://cdn.jsdelivr.net/npm/ua-parser-js@1.0.35/dist/ua-parser.min.js"></script>
 
-  <script type="module">
-    const id = '1'; // Mascota fija con ID 1
+  <script>
+    // Datos estáticos fijos (sin llamar a backend)
+    const mascota = {
+      id: 1,
+      dueno_id: 1,
+      nombre: "Snoopy",
+      especie: "Perro",
+      raza: "Pequines",
+      edad: "3 meses",
+      historial_salud: "Vacunado y desparasitado",
+      estado: "En casa",
+      mensaje: "Hola me he perdido ayúdame a estar en casa",
+      foto: "https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas//premium_photo-1694819488591-a43907d1c5cc.jpg"
+    };
 
-    fetch(`/api/perfil/${id}`)
-      .then(res => {
-        if (!res.ok) throw new Error('Mascota no encontrada');
-        return res.json();
-      })
-      .then(data => {
-        // Usamos la URL fija que envía el backend para la foto
-        document.getElementById('foto-mascota').src = data.foto || 'https://via.placeholder.com/400x300?text=Sin+foto';
+    const dueno = {
+      id: 1,
+      nombre: "Mishely",
+      telefono: "73958015",
+      correo: "melgarcoimbradora@gmail.com",
+      mensaje: "Hola estoy bien"
+    };
 
-        // Los demás datos del backend
-        document.getElementById('nombre-mascota').textContent = data.nombre || 'Sin nombre';
-        document.getElementById('estado').textContent = data.estado || '';
-        document.getElementById('mensaje-mascota').textContent = data.mensaje || '';
-        document.getElementById('especie').textContent = data.especie || '';
-        document.getElementById('raza').textContent = data.raza || '';
-        document.getElementById('edad').textContent = data.edad || '';
-        document.getElementById('historial_salud').textContent = data.historial_salud || '';
-        // Como en el objeto fijo no tienes datos de dueño, aquí mostramos campos vacíos
-        document.getElementById('nombre-dueno').textContent = data.nombre_dueno || '';
-        document.getElementById('telefono-dueno').textContent = data.telefono || '';
-        document.getElementById('correo-dueno').textContent = data.correo || '';
-        document.getElementById('mensaje-dueno').textContent = data.mensaje_dueno || '';
-      })
-      .catch(err => {
-        console.error(err);
-        alert('❌ Mascota no encontrada o error al cargar los datos.');
-      });
+    try {
+      // Asignar valores estáticos al HTML
+      document.getElementById('foto-mascota').src = mascota.foto;
+      document.getElementById('nombre-mascota').textContent = mascota.nombre;
+      document.getElementById('estado').textContent = mascota.estado;
+      document.getElementById('mensaje-mascota').textContent = mascota.mensaje;
+      document.getElementById('especie').textContent = mascota.especie;
+      document.getElementById('raza').textContent = mascota.raza;
+      document.getElementById('edad').textContent = mascota.edad;
+      document.getElementById('historial_salud').textContent = mascota.historial_salud;
 
-    // Aquí puedes agregar lógica para el botón Contactar si quieres
+      document.getElementById('nombre-dueno').textContent = dueno.nombre;
+      document.getElementById('telefono-dueno').textContent = dueno.telefono;
+      document.getElementById('correo-dueno').textContent = dueno.correo;
+      document.getElementById('mensaje-dueno').textContent = dueno.mensaje;
+    } catch (err) {
+      console.error('Error cargando datos estáticos del perfil:', err);
+      // No mostramos nada al usuario
+    }
+
+    // Botón contactar abre WhatsApp con el número del dueño
     document.getElementById('btn-contactar').addEventListener('click', () => {
-      const telefono = document.getElementById('telefono-dueno').textContent.trim();
-      if (!telefono) {
-        alert('No hay teléfono disponible para contactar.');
+      if (!dueno.telefono) {
+        console.warn('No hay teléfono disponible para contactar.');
         return;
       }
-      // Abrir WhatsApp Web con el teléfono
-      window.open(`https://wa.me/${telefono}`, '_blank');
+      window.open(`https://wa.me/${dueno.telefono}`, '_blank');
     });
   </script>
 
