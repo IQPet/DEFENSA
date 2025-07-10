@@ -145,6 +145,7 @@
   <script src="https://cdn.jsdelivr.net/npm/ua-parser-js@1.0.35/dist/ua-parser.min.js"></script>
 
   <script>
+  document.addEventListener('DOMContentLoaded', () => {
     // Datos estáticos fijos (sin llamar a backend)
     const mascota = {
       id: 1,
@@ -195,7 +196,9 @@
       }
       window.open(`https://wa.me/${dueno.telefono}`, '_blank');
     });
-  </script>
+  });
+</script>
+
 
   <!-- Scripts del proyecto -->
   <script type="module" src="js/main.js"></script>
