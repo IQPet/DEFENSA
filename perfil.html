@@ -108,7 +108,7 @@
     <div id="ubicacion-aviso" style="color: red; font-weight: bold; padding: 10px 20px;"></div>
 
     <section class="perfil-mascota">
-      <img id="foto-mascota" src="" alt="Foto de la mascota" />
+      <img id="foto-mascota" src="https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/premium_photo-1694819488591-a43907d1c5cc.jpg" alt="Foto de la mascota" />
       <h2 id="nombre-mascota">Nombre</h2>
       <p id="estado" class="estado"></p>
       <div class="mensaje-mascota">
@@ -153,10 +153,6 @@
         return res.json();
       })
       .then(data => {
-        const foto = data.foto || 'https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas//premium_photo-1694819488591-a43907d1c5cc.jpg';
-document.getElementById('foto-mascota').src = foto;
-
-
         document.getElementById('nombre-mascota').textContent = data.nombre || 'Sin nombre';
         document.getElementById('estado').textContent = data.estado || '';
         document.getElementById('mensaje-mascota').textContent = data.mensaje || '';
