@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Seleccionar Mascota - IQPet</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+      background: #f4f7fa;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    .lista {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      max-width: 500px;
+      margin: 30px auto;
+    }
+    button {
+      padding: 12px;
+      background: #0072ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #005ecb;
+    }
+  </style>
+</head>
+<body>
+  <h2>Selecciona una mascota para editar</h2>
+  <div class="lista" id="lista-mascotas"></div>
+
+  <script>
+    const mascotas = JSON.parse(localStorage.getItem('mascotas')) || [];
+    const lista = document.getElementById('lista-mascotas');
+
+    if (mascotas.length === 0) {
+      lista.innerHTML = '<p>No se encontraron mascotas registradas.</p>';
+    } else {
+      mascotas.forEach(mascota => {
+        const btn = document.createElement('button');
+        btn.textContent = `🐾 ${mascota.nombre || 'Mascota ID ' + mascota.id}`;
+        btn.onclick = () => {
+          window.location.href = `editar.html?id=${mascota.id}`;
+        };
+        lista.appendChild(btn);
+      });
+    }
+  </script>
+</body>
+</html>
+

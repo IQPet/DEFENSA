@@ -11,7 +11,6 @@
       background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       display: flex; justify-content: center; align-items: center;
       animation: fadeIn 1s ease-in;
-      flex-direction: column;
     }
     @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     main {
@@ -39,20 +38,6 @@
       color: #ffcccc; font-size: 14px; display: none; animation: slideDown 0.4s ease-in-out;
     }
     @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* Debug div */
-    #debug {
-      margin-top: 20px;
-      max-width: 400px;
-      width: 100%;
-      background-color: #222;
-      color: #eee;
-      padding: 12px;
-      font-family: monospace;
-      font-size: 13px;
-      border-radius: 8px;
-      white-space: pre-wrap;
-    }
   </style>
 </head>
 <body>
@@ -68,19 +53,14 @@
     <p id="mensaje-error"></p>
   </main>
 
-  <div id="debug"></div>
-
   <script type="module">
     const form = document.getElementById('form-login');
     const errorMsg = document.getElementById('mensaje-error');
     const boton = document.getElementById('btn-ingresar');
-    const debugDiv = document.getElementById('debug');
 
     // Obtener mascotaId de la URL si existe
     const urlParams = new URLSearchParams(window.location.search);
     const mascotaIdParam = urlParams.get('mascotaId');
-
-    debugDiv.textContent = `MascotaId recibido: ${mascotaIdParam || 'ninguno'}`;
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -88,7 +68,6 @@
       const correo = document.getElementById('correo').value.trim();
       const clave = document.getElementById('clave').value.trim();
       errorMsg.style.display = 'none';
-      debugDiv.textContent = '';
 
       boton.disabled = true;
       boton.textContent = "Verificando...";
@@ -112,20 +91,28 @@
 
         localStorage.setItem('duenoId', data.duenoId);
 
-        debugDiv.textContent = `MascotaId recibido: ${mascotaIdParam || 'ninguno'}\nMascotas del dueño:\n${JSON.stringify(data.mascotas, null, 2)}`;
-        console.log('Mascotas del dueño:', data.mascotas);
-
         let idParaEditar = mascotaIdParam;
 
         if (idParaEditar) {
           const existe = data.mascotas.some(m => String(m.id) === idParaEditar);
           if (!existe) {
-            idParaEditar = null; // No válida, ignorar
+            idParaEditar = null;
           }
         }
 
-        if (!idParaEditar) {
-          idParaEditar = data.mascotas && data.mascotas.length > 0 ? data.mascotas[0].id : null;
+        // 🔀 Redirigir a elegir-mascota.html si hay más de una mascota
+        if (!idParaEditar && data.mascotas.length > 1) {
+          localStorage.setItem('mascotas', JSON.stringify(data.mascotas));
+          boton.textContent = "Redirigiendo...";
+          setTimeout(() => {
+            window.location.href = 'elegir-mascota.html';
+          }, 700);
+          return;
+        }
+
+        // ✅ Redirigir directo si hay solo una mascota
+        if (!idParaEditar && data.mascotas.length === 1) {
+          idParaEditar = data.mascotas[0].id;
         }
 
         if (!idParaEditar) {
@@ -134,8 +121,6 @@
           boton.textContent = "Ingresar";
           return;
         }
-
-        alert(`Redirigiendo a editar.html?id=${idParaEditar}`);
 
         boton.textContent = "Ingresando...";
         setTimeout(() => {
