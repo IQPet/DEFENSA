@@ -199,48 +199,46 @@ ${linkMapa ? `🌎 Ver en mapa: ${linkMapa}` : ''}
   }
 });
 
-const getMascotaById = async (id) => {
-  const query = `
-    SELECT 
-      m.id AS mascota_id,
-      m.nombre AS nombre_mascota,
-      m.foto,
-      m.edad,
-      m.raza,
-      m.especie,
-      m.estado,
-      m.historial_salud,
-      m.mensaje AS mensaje_mascota,
-      d.nombre AS dueno_nombre,
-      d.telefono AS dueno_telefono,
-      d.correo AS dueno_correo,
-      d.mensaje AS dueno_mensaje
-    FROM mascotas m
-    JOIN duenos d ON m.dueno_id = d.id
-    WHERE m.id = $1
-  `;
-  const result = await pool.query(query, [id]);
-  if (result.rows.length === 0) {
-    return null;
-  }
-  return result.rows[0];
-};
-
-app.get(['/api/perfil/:id', '/api/mascota/:id'], async (req, res) => {
+// 🔍 Obtener datos del perfil
+console.log('Definiendo ruta GET /api/perfil/:id');
+app.get('/api/perfil/:id', async (req, res) => {
   const mascotaId = req.params.id;
+
   try {
-    const mascota = await getMascotaById(mascotaId);
-    if (!mascota) {
+    const query = `
+      SELECT 
+        m.id AS mascota_id,
+        m.nombre AS nombre_mascota,
+        m.foto,
+        m.edad,
+        m.raza,
+        m.especie,
+        m.estado,
+        m.historial_salud,
+        m.mensaje AS mensaje_mascota,
+        d.nombre AS nombre_dueno,
+        d.telefono,
+        d.correo,
+        d.mensaje AS mensaje_dueno
+      FROM mascotas m
+      JOIN duenos d ON m.dueno_id = d.id
+      WHERE m.id = $1
+    `;
+    const result = await pool.query(query, [mascotaId]);
+
+    console.log("🔍 Resultado de la consulta SQL:", result.rows);
+
+    if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Mascota no encontrada' });
     }
-    return res.json(mascota);
+
+    return res.json(result.rows[0]);
+
   } catch (error) {
-    console.error("❌ Error al obtener mascota:", error);
+    console.error("❌ Error al obtener perfil:", error);
     return res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
-
-
 
 // ⚠️ Agrega esto justo ANTES del app.post('/api/validar-dueno')
 app.options('/api/validar-dueno', cors(corsOptions), (req, res) => {
