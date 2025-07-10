@@ -289,7 +289,7 @@ app.post('/api/validar-dueno', cors(corsOptions), async (req, res) => {
 });
 
 // ✏️ Actualizar perfil
-console.log('Definiendo ruta PUT /api/editar-perfil/:id');
+console.log('Definiendo ruta POST /api/editar-perfil/:id');
 app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
 
   console.log('📂 req.file:', req.file);  // Multer recibe la imagen
@@ -359,27 +359,43 @@ app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
     }
 
     // Actualizar datos de la mascota
-    let queryMascota = `
-      UPDATE mascotas
-      SET nombre = $1, estado = $2, mensaje = $3, especie = $4, raza = $5, edad = $6,
-          historial_salud = $7
-    `;
-    const paramsMascota = [
-      nombre_mascota,
-      estado,
-      mensaje_mascota,
-      especie,
-      raza,
-      edad,
-      historial_salud
-    ];
+    let queryMascota, paramsMascota;
 
     if (urlPublicaFoto) {
-      queryMascota += `, foto = $8 WHERE id = $9`;
-      paramsMascota.push(urlPublicaFoto, mascotaId);
+      queryMascota = `
+        UPDATE mascotas
+        SET nombre = $1, estado = $2, mensaje = $3, especie = $4, raza = $5,
+            edad = $6, historial_salud = $7, foto = $8
+        WHERE id = $9
+      `;
+      paramsMascota = [
+        nombre_mascota,
+        estado,
+        mensaje_mascota,
+        especie,
+        raza,
+        edad,
+        historial_salud,
+        urlPublicaFoto,
+        mascotaId
+      ];
     } else {
-      queryMascota += ` WHERE id = $8`;
-      paramsMascota.push(mascotaId);
+      queryMascota = `
+        UPDATE mascotas
+        SET nombre = $1, estado = $2, mensaje = $3, especie = $4, raza = $5,
+            edad = $6, historial_salud = $7
+        WHERE id = $8
+      `;
+      paramsMascota = [
+        nombre_mascota,
+        estado,
+        mensaje_mascota,
+        especie,
+        raza,
+        edad,
+        historial_salud,
+        mascotaId
+      ];
     }
 
     await pool.query(queryMascota, paramsMascota);
@@ -409,7 +425,6 @@ app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
     });
   }
 });
-
 
 console.log("🛠️ Versión corregida sin path-to-regexp directa");
 
