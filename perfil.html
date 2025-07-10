@@ -192,7 +192,6 @@
       document.getElementById('mensaje-dueno').textContent = dueno.mensaje || '(sin dato)';
     } catch (err) {
       console.error('Error cargando datos estáticos del perfil:', err);
-      // No mostramos nada al usuario
     }
 
     // Botón contactar abre WhatsApp con el número del dueño
@@ -205,6 +204,11 @@
     });
   });
   </script>
+
+  <!-- Scripts del proyecto -->
+  <!-- Comentamos para que no sobreescriban ni interfieran -->
+  <!-- <script type="module" src="js/main.js"></script> -->
+  <!-- <script type="module" src="js/perfil-consentimiento.js"></script> -->
 
   <!-- Scripts del proyecto -->
   <script type="module" src="js/main.js"></script>
