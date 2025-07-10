@@ -57,9 +57,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("btn-guardar").addEventListener("click", async () => {
     const formData = new FormData();
 
-    formData.append("nombre_mascota", document.getElementById("nombre-mascota").value);
+    // Cambié estos nombres para que coincidan con el backend
+    formData.append("nombre", document.getElementById("nombre-mascota").value);
     formData.append("estado", document.getElementById("estado").value);
-    formData.append("mensaje_mascota", document.getElementById("mensaje-mascota").value);
+    formData.append("mensaje", document.getElementById("mensaje-mascota").value);
 
     formData.append("especie", document.getElementById("especie").value);
     formData.append("raza", document.getElementById("raza").value);
@@ -82,6 +83,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         body: formData,
       });
       const result = await res.json();
+
+      console.log("✅ Respuesta backend:", result);
 
       if (!res.ok) throw new Error(result.error || "Error actualizando perfil");
 
