@@ -339,11 +339,13 @@ app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
 
       if (error) throw error;
 
-      const { publicURL, error: urlError } = supabase.storage
+      const { data: urlData } = supabase.storage
         .from('mascotas')
         .getPublicUrl(fileName);
 
-      if (urlError) throw urlError;
+      const publicURL = urlData.publicUrl; // aquí está la URL pública correcta
+
+      console.log('URL pública de la imagen subida:', publicURL);
 
       await pool.query(
         `UPDATE mascotas SET foto = $1 WHERE id = $2`,
@@ -357,7 +359,6 @@ app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
     return res.status(500).json({ error: 'Error actualizando perfil', detalle: error.message });
   }
 });
-
 
 
 // 🚀 Iniciar servidor
