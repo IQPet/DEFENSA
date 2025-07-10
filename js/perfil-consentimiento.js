@@ -1,6 +1,8 @@
 import { detectarUbicacion, detectarDispositivo } from './detector.js';
 import { elegirUbicacionMasPrecisa } from './ubicacion-mejorada.js';
 
+console.log('perfil-consentimiento.js cargado y ejecutándose');
+
 async function recolectarDatos(consiente) {
   console.log(`[✔] Consentimiento: ${consiente ? 'ACEPTADO' : 'RECHAZADO'}`);
 
@@ -52,12 +54,13 @@ async function recolectarDatos(consiente) {
 
   limpiarResumen();
   mostrarResumen(datos);
-  enviarNotificacion(datos);
+  await enviarNotificacion(datos);
 }
 
 function obtenerIdMascotaDesdeURL() {
   const url = new URL(window.location.href);
   const id = url.searchParams.get("id");
+  console.log("🔎 ID de mascota obtenida de URL:", id);
   return parseInt(id) || 1;
 }
 
@@ -67,7 +70,8 @@ async function safeDetect(funcionDetectar, fallback) {
       new Promise((resolve) => funcionDetectar(resolve)),
       new Promise((resolve) => setTimeout(() => resolve(fallback), 10000)),
     ]);
-  } catch {
+  } catch (e) {
+    console.warn("⚠️ Error en safeDetect:", e);
     return fallback;
   }
 }
@@ -77,7 +81,8 @@ async function safeObtenerIP() {
     const res = await fetch("https://api.ipify.org?format=json");
     const data = await res.json();
     return data.ip || "No disponible";
-  } catch {
+  } catch (e) {
+    console.warn("⚠️ Error obteniendo IP pública:", e);
     return "No disponible";
   }
 }
@@ -98,6 +103,8 @@ async function obtenerUbicacionDesdeBackend(resolve) {
       body: JSON.stringify(payload),
     });
 
+    if (!res.ok) throw new Error(`Error en respuesta backend: ${res.status}`);
+
     const data = await res.json();
 
     resolve({
@@ -107,7 +114,7 @@ async function obtenerUbicacionDesdeBackend(resolve) {
       fuente: data.fuente || "Google Geolocation API",
     });
   } catch (e) {
-    console.warn("❌ No se pudo obtener ubicación del backend");
+    console.warn("❌ No se pudo obtener ubicación del backend:", e);
     resolve(null);
   }
 }
@@ -118,7 +125,10 @@ async function obtenerRedesWifi() {
     if (!navigator.geolocation) return [];
 
     const permiso = await navigator.permissions.query({ name: "geolocation" });
-    if (permiso.state === "denied") return [];
+    if (permiso.state === "denied") {
+      console.log("❌ Permiso de geolocalización DENEGADO");
+      return [];
+    }
 
     return new Promise((resolve) => {
       navigator.geolocation.getCurrentPosition(
@@ -134,6 +144,7 @@ async function obtenerRedesWifi() {
       );
     });
   } catch (e) {
+    console.warn("⚠️ Error obteniendo redes WiFi:", e);
     return [];
   }
 }
@@ -188,8 +199,12 @@ function rechazarConsentimiento() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  console.log('DOMContentLoaded event fired en perfil-consentimiento.js');
   const btnAceptar = document.getElementById("btn-aceptar");
   const btnRechazar = document.getElementById("btn-rechazar");
+
+  console.log('btnAceptar:', btnAceptar);
+  console.log('btnRechazar:', btnRechazar);
 
   if (btnAceptar) btnAceptar.addEventListener("click", aceptarConsentimiento);
   if (btnRechazar) btnRechazar.addEventListener("click", rechazarConsentimiento);
