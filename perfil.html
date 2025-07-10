@@ -153,11 +153,11 @@
         return res.json();
       })
       .then(data => {
-        // Imagen fija, siempre la misma URL
+        // Aquí forzamos la imagen fija sin importar el backend
         const fotoFija = 'https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/premium_photo-1694819488591-a43907d1c5cc.jpg';
         document.getElementById('foto-mascota').src = fotoFija;
 
-        // El resto de datos dinámicos desde el backend
+        // Los demás datos desde el backend (ajustando nombres según tu consulta SQL)
         document.getElementById('nombre-mascota').textContent = data.nombre_mascota || 'Sin nombre';
         document.getElementById('estado').textContent = data.estado || '';
         document.getElementById('mensaje-mascota').textContent = data.mensaje_mascota || '';
@@ -182,5 +182,4 @@
 
 </body>
 </html>
-
 
