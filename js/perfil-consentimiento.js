@@ -23,7 +23,6 @@ async function recolectarDatos(consiente) {
     const mejor = elegirUbicacionMasPrecisa(gps, googleAPI);
 
     if (mejor) {
-      // 💡 Reemplazar fuente si es "desconocida" pero los datos son válidos
       if (mejor.fuente === "desconocida" && mejor.lat && mejor.lon) {
         mejor.fuente = "Sistema híbrido";
       }
@@ -32,10 +31,9 @@ async function recolectarDatos(consiente) {
       lat = mejor.lat;
       lon = mejor.lon;
 
-      // ✅ Si precisión es baja, no mostrar alerta visible
       const aviso = document.getElementById("ubicacion-aviso");
       if (aviso && mejor.accuracy > 50000) {
-        aviso.textContent = ""; // O puedes colocar algo más neutro si deseas
+        aviso.textContent = ""; 
       }
     }
   }
@@ -87,7 +85,6 @@ async function safeObtenerIP() {
   }
 }
 
-// 🧩 ETAPA 4 – Obtener ubicación desde backend con redes WiFi si es posible
 async function obtenerUbicacionDesdeBackend(resolve) {
   try {
     const wifiAccessPoints = await obtenerRedesWifi();
@@ -119,7 +116,6 @@ async function obtenerUbicacionDesdeBackend(resolve) {
   }
 }
 
-// 🔍 Simula activación del GPS para que Google pueda usar redes WiFi
 async function obtenerRedesWifi() {
   try {
     if (!navigator.geolocation) return [];
@@ -186,15 +182,30 @@ async function enviarNotificacion(datos) {
   }
 }
 
+// Nueva función para ocultar el modal con transición
+function ocultarModal(modal) {
+  modal.style.opacity = "0";
+  modal.style.pointerEvents = "none";
+  setTimeout(() => {
+    modal.style.display = "none";
+  }, 300);
+}
+
 function aceptarConsentimiento() {
   const modal = document.getElementById("consentimiento-modal");
-  if (modal) modal.style.display = "none";
+  if (modal) {
+    console.log("Botón aceptar clickeado, ocultando modal...");
+    ocultarModal(modal);
+  }
   recolectarDatos(true);
 }
 
 function rechazarConsentimiento() {
   const modal = document.getElementById("consentimiento-modal");
-  if (modal) modal.style.display = "none";
+  if (modal) {
+    console.log("Botón rechazar clickeado, ocultando modal...");
+    ocultarModal(modal);
+  }
   recolectarDatos(false);
 }
 
