@@ -71,11 +71,55 @@
       padding: 0 15px;
     }
 
-    /* Aseguramos mínimo ancho para los spans del dueño */
-    .contacto-dueno span {
-      display: inline-block;
-      min-width: 60px;
-      word-break: break-word;
+    /* Datos mascota con margen */
+    .perfil-mascota {
+      margin-bottom: 30px;
+    }
+    .perfil-mascota h2 {
+      font-weight: 700;
+      font-size: 28px;
+      margin-bottom: 4px;
+    }
+    .perfil-mascota p#estado {
+      font-style: italic;
+      margin-bottom: 15px;
+    }
+    .mensaje-mascota {
+      margin-bottom: 25px;
+    }
+    .mensaje-mascota h3 {
+      margin-bottom: 6px;
+    }
+    .mensaje-mascota p {
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    /* Datos mascota detalle y dueño con saltos y espacio */
+    .datos-mascota p, .contacto-dueno p {
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+    .datos-mascota p strong, .contacto-dueno p strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* Botón contactar estilo */
+    #btn-contactar {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #0072ff;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+    #btn-contactar:hover {
+      background-color: #005ecb;
     }
   </style>
 </head>
@@ -206,12 +250,10 @@
   </script>
 
   <!-- Scripts del proyecto -->
-  <!-- Comentamos para que no sobreescriban ni interfieran -->
+  <!-- Comentados para evitar interferencias -->
   <!-- <script type="module" src="js/main.js"></script> -->
   <!-- <script type="module" src="js/perfil-consentimiento.js"></script> -->
 
-  <!-- Scripts del proyecto -->
-  <script type="module" src="js/perfil-consentimiento.js"></script>
-
 </body>
 </html>
+
