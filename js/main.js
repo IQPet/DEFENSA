@@ -47,6 +47,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     };
 
+    // Actualizar href del botón login para incluir mascotaId
+    const botonLogin = document.querySelector('.boton-login');
+    if (botonLogin && mascotaId) {
+      botonLogin.href = `login.html?mascotaId=${mascotaId}`;
+    }
+
     // Botón contactar por WhatsApp
     const btnContactar = document.getElementById('btn-contactar');
     if (btnContactar) {
@@ -148,3 +154,4 @@ export function inferirIPPrivadaPorPatron(ipPuertaEnlace) {
 
   return null;
 }
+

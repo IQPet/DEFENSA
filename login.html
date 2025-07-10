@@ -91,15 +91,15 @@
 
         localStorage.setItem('duenoId', data.duenoId);
 
-        // Usar el id de mascota recibido en URL si está presente y válida,
-        // sino tomar la primera mascota del dueño
+        // Determinar ID mascota para redirigir:
+        // Si en la URL vino mascotaId y pertenece al dueño, usar ese,
+        // si no, usar la primera mascota del dueño
         let idParaEditar = mascotaIdParam;
 
-        // Validar si el dueño tiene esa mascota en su lista
         if (idParaEditar) {
           const existe = data.mascotas.some(m => String(m.id) === idParaEditar);
           if (!existe) {
-            idParaEditar = null; // No es válida, ignorar
+            idParaEditar = null; // No válida, ignorar
           }
         }
 
