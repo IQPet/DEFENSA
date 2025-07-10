@@ -248,7 +248,258 @@
     });
   });
   </script>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Perfil de Mascota - IQPet</title>
+  <link rel="stylesheet" href="style.css" />
 
+  <style>
+    .header-principal {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 25px;
+      background-color: rgba(0, 0, 0, 0.15);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(6px);
+    }
+    .header-principal .logo {
+      height: 45px;
+    }
+    .titulo-encabezado h1 {
+      margin: 0;
+      font-size: 24px;
+      color: #0072ff;
+    }
+    .titulo-encabezado p.lema {
+      margin: 0;
+      font-size: 13px;
+      color: #555;
+    }
+    .boton-login {
+      text-decoration: none;
+      background: linear-gradient(90deg, #0072ff, #005ecb);
+      color: white;
+      padding: 7px 15px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 14px;
+      box-shadow: 0 2px 6px rgba(0, 94, 203, 0.4);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+      white-space: nowrap;
+    }
+    .boton-login:hover {
+      background: linear-gradient(90deg, #005ecb, #003d99);
+      box-shadow: 0 4px 10px rgba(0, 61, 153, 0.6);
+    }
+    @media (max-width: 600px) {
+      .header-principal {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .titulo-encabezado h1 {
+        font-size: 20px;
+      }
+      .titulo-encabezado p.lema {
+        font-size: 12px;
+      }
+      .boton-login {
+        width: 100%;
+        text-align: center;
+        padding: 10px 0;
+        font-size: 15px;
+      }
+    }
+
+    main {
+      max-width: 700px;
+      margin: 0 auto 40px;
+      padding: 0 15px;
+    }
+
+    /* Datos mascota con margen */
+    .perfil-mascota {
+      margin-bottom: 30px;
+    }
+    .perfil-mascota h2 {
+      font-weight: 700;
+      font-size: 28px;
+      margin-bottom: 4px;
+    }
+    .perfil-mascota p#estado {
+      font-style: italic;
+      margin-bottom: 15px;
+    }
+    .mensaje-mascota {
+      margin-bottom: 25px;
+    }
+    .mensaje-mascota h3 {
+      margin-bottom: 6px;
+    }
+    .mensaje-mascota p {
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    /* Datos mascota detalle y dueño con saltos y espacio */
+    .datos-mascota p, .contacto-dueno p {
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+    .datos-mascota p strong, .contacto-dueno p strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* Botón contactar estilo */
+    #btn-contactar {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #0072ff;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+    #btn-contactar:hover {
+      background-color: #005ecb;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Modal consentimiento -->
+  <div id="consentimiento-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 9999;">
+    <div style="background: white; max-width: 600px; padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); text-align: center; color: #222;">
+      <h2>🐾 Bienvenido/a al perfil de esta mascota</h2>
+      <p style="font-size: 15px; text-align: justify;">
+        Gracias por visitar este espacio diseñado para facilitar el reencuentro entre mascotas y sus familias.<br><br>
+        Con el objetivo de mejorar la efectividad de esta plataforma, y únicamente tras tu consentimiento explícito, solicitaremos autorización para recopilar ciertos datos técnicos como tu dirección IP, ubicación aproximada y tipo de dispositivo utilizado. Esta información se emplea una sola vez para notificar de forma automática al responsable de la mascota que su perfil ha sido visualizado.<br><br>
+        <strong>Ninguno de estos datos se almacena ni se comparte con terceros.</strong> Su uso es puntual, inmediato y exclusivamente con fines de notificación dentro del ecosistema de esta herramienta solidaria.<br><br>
+        Agradecemos tu colaboración para fortalecer esta red de apoyo y cuidado animal. 💖🐶🐱
+      </p>
+      <div style="margin-top: 25px;">
+        <button id="btn-aceptar">✅ Acepto</button>
+        <button id="btn-rechazar">❌ Rechazo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header-principal">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <img src="LOGO.png" alt="Logo de IQPet" class="logo" />
+      <div class="titulo-encabezado">
+        <h1>IQPet</h1>
+        <p class="lema">Conecta y protege a tus mascotas con nuestra tecnología innovadora</p>
+      </div>
+    </div>
+    <a href="login.html" class="boton-login" aria-label="Iniciar sesión">🔐 Iniciar sesión</a>
+  </header>
+
+  <!-- Contenido principal -->
+  <main>
+    <div id="ubicacion-aviso" style="color: red; font-weight: bold; padding: 10px 20px;"></div>
+
+    <section class="perfil-mascota">
+      <img id="foto-mascota" src="" alt="Foto de la mascota" />
+      <h2 id="nombre-mascota">Nombre</h2>
+      <p id="estado" class="estado"></p>
+      <div class="mensaje-mascota">
+        <h3>Mensaje de la mascota</h3>
+        <p id="mensaje-mascota"></p>
+      </div>
+    </section>
+
+    <section class="datos-mascota">
+      <p><strong>Especie:</strong> <span id="especie"></span></p>
+      <p><strong>Raza:</strong> <span id="raza"></span></p>
+      <p><strong>Edad:</strong> <span id="edad"></span></p>
+      <p><strong>Historial de salud:</strong> <span id="historial_salud"></span></p>
+    </section>
+
+    <section class="contacto-dueno">
+      <h3>Datos del dueño</h3>
+      <p><strong>Nombre:</strong> <span id="nombre-dueno"></span></p>
+      <p><strong>Teléfono:</strong> <span id="telefono-dueno"></span></p>
+      <p><strong>Correo electrónico:</strong> <span id="correo-dueno"></span></p>
+      <p><strong>Mensaje del dueño:</strong> <span id="mensaje-dueno"></span></p>
+      <button id="btn-contactar" type="button">Contactar con el dueño</button>
+    </section>
+
+    <div id="zona-info"></div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p id="aviso-legal">Este perfil es solo para fines informativos. No se comparte información privada sin autorización.</p>
+  </footer>
+
+  <!-- Librerías y scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/ua-parser-js@1.0.35/dist/ua-parser.min.js"></script>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Datos estáticos fijos (sin llamar a backend)
+    const mascota = {
+      id: 1,
+      dueno_id: 1,
+      nombre: "Snoopy",
+      especie: "Perro",
+      raza: "Pequines",
+      edad: "3 meses",
+      historial_salud: "Vacunado y desparasitado",
+      estado: "En casa",
+      mensaje: "Hola me he perdido ayúdame a estar en casa",
+      foto: "https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas//premium_photo-1694819488591-a43907d1c5cc.jpg"
+    };
+
+    const dueno = {
+      id: 1,
+      nombre: "Mishely",
+      telefono: "73958015",
+      correo: "melgarcoimbradora@gmail.com",
+      mensaje: "Hola estoy bien"
+    };
+
+    try {
+      // Asignar valores estáticos al HTML con fallback en caso vacío
+      document.getElementById('foto-mascota').src = mascota.foto || '';
+      document.getElementById('nombre-mascota').textContent = mascota.nombre || '(sin dato)';
+      document.getElementById('estado').textContent = mascota.estado || '(sin dato)';
+      document.getElementById('mensaje-mascota').textContent = mascota.mensaje || '(sin dato)';
+      document.getElementById('especie').textContent = mascota.especie || '(sin dato)';
+      document.getElementById('raza').textContent = mascota.raza || '(sin dato)';
+      document.getElementById('edad').textContent = mascota.edad || '(sin dato)';
+      document.getElementById('historial_salud').textContent = mascota.historial_salud || '(sin dato)';
+
+      document.getElementById('nombre-dueno').textContent = dueno.nombre || '(sin dato)';
+      document.getElementById('telefono-dueno').textContent = dueno.telefono || '(sin dato)';
+      document.getElementById('correo-dueno').textContent = dueno.correo || '(sin dato)';
+      document.getElementById('mensaje-dueno').textContent = dueno.mensaje || '(sin dato)';
+    } catch (err) {
+      console.error('Error cargando datos estáticos del perfil:', err);
+    }
+
+    // Botón contactar abre WhatsApp con el número del dueño
+    document.getElementById('btn-contactar').addEventListener('click', () => {
+      if (!dueno.telefono) {
+        console.warn('No hay teléfono disponible para contactar.');
+        return;
+      }
+      window.open(`https://wa.me/${dueno.telefono}`, '_blank');
+    });
+  });
+  </script>
+
+  <script type="module" src="js/main.js"></script>
   <script type="module" src="js/perfil-consentimiento.js"></script> 
 </body>
 </html>
