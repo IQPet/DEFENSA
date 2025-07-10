@@ -12,13 +12,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (!res.ok) throw new Error(data.error || "No se pudo obtener el perfil");
 
-    // 🖼️ Verificar si la foto ya es URL pública
-    if (data.foto && data.foto.startsWith("http")) {
-      document.getElementById("foto-preview").src = data.foto;
-    } else if (data.foto) {
-      } else if (data.foto) {
-  document.getElementById("foto-preview").src = data.foto;
-}
+    // 🖼️ Cargar la foto correctamente (usar foto_url, que es la url pública)
+    if (data.foto_url && data.foto_url.startsWith("http")) {
+      document.getElementById("foto-preview").src = data.foto_url;
+    } else {
+      // foto_url no existe o no es URL pública: poner imagen por defecto
+      document.getElementById("foto-preview").src = "https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/default.jpg";
+    }
 
     document.getElementById("nombre-mascota").value = data.nombre_mascota || '';
     document.getElementById("estado").value = data.estado || 'Perdida';
@@ -77,10 +77,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     try {
-     const res = await fetch(`https://defensa-1.onrender.com/api/editar-perfil/${mascotaId}`, {
-  method: "POST",
-  body: formData,
-});
+      const res = await fetch(`https://defensa-1.onrender.com/api/editar-perfil/${mascotaId}`, {
+        method: "POST",
+        body: formData,
+      });
       const result = await res.json();
 
       if (!res.ok) throw new Error(result.error || "Error actualizando perfil");
@@ -93,4 +93,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
-
