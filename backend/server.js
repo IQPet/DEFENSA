@@ -213,7 +213,15 @@ app.get('/api/perfil/:id', (req, res) => {
     historial_salud: "Vacunado y desparasitado",
     estado: "En casa",
     mensaje: "Hola me he perdido ayúdame a estar en casa",
-    foto: "https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas//premium_photo-1694819488591-a43907d1c5cc.jpg"
+    foto: "https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/premium_photo-1694819488591-a43907d1c5cc.jpg",
+    dueno: {
+      id: 1,
+      nombre: "Mishely",
+      telefono: "73958015",
+      correo: "melgarcoimbradora@gmail.com",
+      mensaje: "Hola estoy bien",
+      clave: "luna123"
+    }
   };
 
   return res.json(dataFija);
@@ -321,7 +329,7 @@ app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
         raza,
         edad,
         historial_salud,
-        foto.trim(),  // URL completa guardada tal cual
+        foto.trim(),
         mascotaId
       ];
     } else {
