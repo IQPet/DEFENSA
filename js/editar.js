@@ -12,17 +12,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (!res.ok) throw new Error(data.error || "No se pudo obtener el perfil");
 
-    // 🖼️ Cargar la foto correctamente (usar foto_url, que es la url pública)
-    if (data.foto_url && data.foto_url.startsWith("http")) {
-      document.getElementById("foto-preview").src = data.foto_url;
+    // 🖼️ Cargar la foto correctamente
+    if (data.foto && data.foto.startsWith("http")) {
+      document.getElementById("foto-preview").src = data.foto;
     } else {
-      // foto_url no existe o no es URL pública: poner imagen por defecto
       document.getElementById("foto-preview").src = "https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/default.jpg";
     }
 
-    document.getElementById("nombre-mascota").value = data.nombre_mascota || '';
+    document.getElementById("nombre-mascota").value = data.nombre_mascota || data.nombre || '';
     document.getElementById("estado").value = data.estado || 'Perdida';
-    document.getElementById("mensaje-mascota").value = data.mensaje_mascota || '';
+    document.getElementById("mensaje-mascota").value = data.mensaje_mascota || data.mensaje || '';
 
     document.getElementById("especie").value = data.especie || '';
     document.getElementById("raza").value = data.raza || '';
@@ -57,7 +56,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("btn-guardar").addEventListener("click", async () => {
     const formData = new FormData();
 
-    // Cambié estos nombres para que coincidan con el backend
     formData.append("nombre", document.getElementById("nombre-mascota").value);
     formData.append("estado", document.getElementById("estado").value);
     formData.append("mensaje", document.getElementById("mensaje-mascota").value);
@@ -79,9 +77,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
       const res = await fetch(`https://defensa-1.onrender.com/api/editar-perfil/${mascotaId}`, {
-        method: "POST",
+        method: "PUT",  // Cambiado a PUT
         body: formData,
       });
+
       const result = await res.json();
 
       console.log("✅ Respuesta backend:", result);

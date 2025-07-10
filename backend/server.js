@@ -289,14 +289,15 @@ app.get('/api/test-supabase', async (req, res) => {
   }
 });
 
-// Ruta para editar perfil de mascota, recibir imagen y actualizar datos
-app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
+// Cambiar app.post a app.put para edición
+app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
   const mascotaId = req.params.id;
 
+  // Cambiar nombres de variables para que coincidan con frontend
   const {
-    nombre_mascota,
+    nombre,
     estado,
-    mensaje_mascota,
+    mensaje,
     especie,
     raza,
     edad,
@@ -308,23 +309,21 @@ app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
   } = req.body;
 
   try {
-    // Actualizar datos del dueño
-    if (nombre_dueno || telefono || correo || mensaje_dueno) {
-      await pool.query(
-        `UPDATE duenos SET nombre = $1, telefono = $2, correo = $3, mensaje = $4
-         WHERE id = (SELECT dueno_id FROM mascotas WHERE id = $5)`,
-        [nombre_dueno, telefono, correo, mensaje_dueno, mascotaId]
-      );
-    }
+    // Actualizar dueño
+    await pool.query(
+      `UPDATE duenos SET nombre = $1, telefono = $2, correo = $3, mensaje = $4
+       WHERE id = (SELECT dueno_id FROM mascotas WHERE id = $5)`,
+      [nombre_dueno, telefono, correo, mensaje_dueno, mascotaId]
+    );
 
-    // Actualizar datos de mascota sin foto
+    // Actualizar mascota
     await pool.query(
       `UPDATE mascotas SET nombre = $1, estado = $2, mensaje = $3, especie = $4, raza = $5, edad = $6, historial_salud = $7
        WHERE id = $8`,
-      [nombre_mascota, estado, mensaje_mascota, especie, raza, edad, historial_salud, mascotaId]
+      [nombre, estado, mensaje, especie, raza, edad, historial_salud, mascotaId]
     );
 
-    // Si se envió foto, subir a Supabase Storage y actualizar URL
+    // Subir foto y actualizar URL si hay foto
     if (req.file) {
       const fileExt = req.file.originalname.split('.').pop();
       const fileName = `mascota_${mascotaId}_${Date.now()}.${fileExt}`;
@@ -343,9 +342,7 @@ app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
         .from('mascotas')
         .getPublicUrl(fileName);
 
-      const publicURL = urlData.publicUrl; // aquí está la URL pública correcta
-
-      console.log('URL pública de la imagen subida:', publicURL);
+      const publicURL = urlData.publicUrl;
 
       await pool.query(
         `UPDATE mascotas SET foto = $1 WHERE id = $2`,
@@ -353,12 +350,13 @@ app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
       );
     }
 
-    return res.json({ mensaje: 'Perfil actualizado correctamente' });
+    res.json({ mensaje: 'Perfil actualizado correctamente' });
   } catch (error) {
     console.error('❌ Error actualizando perfil:', error);
-    return res.status(500).json({ error: 'Error actualizando perfil', detalle: error.message });
+    res.status(500).json({ error: 'Error actualizando perfil', detalle: error.message });
   }
 });
+
 
 
 // 🚀 Iniciar servidor
