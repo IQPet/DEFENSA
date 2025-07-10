@@ -10,6 +10,8 @@ import fetch from 'node-fetch';
 import geoRouter from './routes/geolocalizacion.js';
 import adminMascotasRoutes from './routes/adminMascotas.js';
 import supabase from './routes/supabaseClient.js';
+import validarDuenoRoutes from './routes/validarDueno.js';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -63,6 +65,7 @@ app.use('/imagenes', express.static(path.join(__dirname, 'imagenes')));
 
 app.use('/api', geoRouter);
 app.use('/api/admin', adminMascotasRoutes);
+app.use('/api/validar-dueno', validarDuenoRoutes);
 
 
 // Configurar multer para subir imágenes
