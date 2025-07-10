@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Mostrar datos en el DOM
-    document.getElementById("foto-mascota").src = `https://defensa-1.onrender.com/${data.foto}`;
+    document.getElementById("foto-mascota").src = data.foto;
     document.getElementById("nombre-mascota").textContent = data.nombre_mascota;
 
     const estadoEl = document.getElementById("estado");

@@ -16,8 +16,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (data.foto && data.foto.startsWith("http")) {
       document.getElementById("foto-preview").src = data.foto;
     } else if (data.foto) {
-      document.getElementById("foto-preview").src = `https://defensa-1.onrender.com/${data.foto}`;
-    }
+      } else if (data.foto) {
+  document.getElementById("foto-preview").src = data.foto;
+}
 
     document.getElementById("nombre-mascota").value = data.nombre_mascota || '';
     document.getElementById("estado").value = data.estado || 'Perdida';
