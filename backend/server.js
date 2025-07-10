@@ -233,12 +233,17 @@ app.get('/api/perfil/:id', async (req, res) => {
 
     const mascota = result.rows[0];
 
-    // URL base del bucket pública
-    const baseUrl = 'https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/';
+    // Evaluar si el campo foto ya es una URL completa o solo el nombre del archivo
+    const fotoCampo = mascota.foto ? mascota.foto.trim() : '';
 
-    // Construir la URL pública solo si foto existe y no es cadena vacía
-    const fotoArchivo = mascota.foto ? mascota.foto.trim() : '';
-    mascota.foto_url = fotoArchivo.length > 0 ? baseUrl + fotoArchivo : null;
+    if (fotoCampo.startsWith('http://') || fotoCampo.startsWith('https://')) {
+      mascota.foto_url = fotoCampo; // Ya es URL completa
+    } else if (fotoCampo.length > 0) {
+      const baseUrl = 'https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/';
+      mascota.foto_url = baseUrl + fotoCampo;
+    } else {
+      mascota.foto_url = null;
+    }
 
     // Eliminar campo foto original para no enviar el nombre del archivo crudo
     delete mascota.foto;
@@ -248,53 +253,6 @@ app.get('/api/perfil/:id', async (req, res) => {
   } catch (error) {
     console.error("❌ Error al obtener perfil:", error);
     res.status(500).json({ error: 'Error interno del servidor' });
-  }
-});
-
-
-
-// ⚠️ Agrega esto justo ANTES del app.post('/api/validar-dueno')
-app.options('/api/validar-dueno', cors(corsOptions), (req, res) => {
-  res.sendStatus(204); // respuesta vacía pero válida
-});
-// 🔐 Validar credenciales del dueño
-app.post('/api/validar-dueno', cors(corsOptions), async (req, res) => {
-  const { correo, clave } = req.body;
-
-  if (!correo || !clave) {
-    return res.status(400).json({ error: 'Faltan datos: correo o clave' });
-  }
-
-  try {
-    const result = await pool.query(
-      'SELECT id, nombre FROM duenos WHERE correo = $1 AND clave = $2',
-      [correo, clave]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(401).json({ error: 'Correo o clave incorrectos' });
-    }
-
-    const dueno = result.rows[0];
-
-    // 🔍 Buscar las mascotas de este dueño
-    const mascotasResult = await pool.query(
-      'SELECT id, nombre FROM mascotas WHERE dueno_id = $1',
-      [dueno.id]
-    );
-
-    const mascotas = mascotasResult.rows;
-
-    return res.json({
-      mensaje: 'Autenticación exitosa',
-      duenoId: dueno.id,
-      nombre: dueno.nombre,
-      mascotas
-    });
-
-  } catch (error) {
-    console.error('❌ Error al validar dueño:', error);
-    return res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
 
