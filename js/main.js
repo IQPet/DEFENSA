@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Mostrar datos en el DOM
-    document.getElementById("foto-mascota").src = data.foto;
+    document.getElementById("foto-mascota").src = data.foto_url || 'https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/premium_photo-1694819488591-a43907d1c5cc.jpg';
     document.getElementById("nombre-mascota").textContent = data.nombre_mascota;
 
     const estadoEl = document.getElementById("estado");
