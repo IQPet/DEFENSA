@@ -153,6 +153,9 @@
         return res.json();
       })
       .then(data => {
+        const foto = data.foto || 'https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/premium_photo-1694819488591-a43907d1c5cc.jpg';
+        document.getElementById('foto-mascota').src = foto;
+
         document.getElementById('nombre-mascota').textContent = data.nombre || 'Sin nombre';
         document.getElementById('estado').textContent = data.estado || '';
         document.getElementById('mensaje-mascota').textContent = data.mensaje || '';
@@ -160,7 +163,6 @@
         document.getElementById('raza').textContent = data.raza || '';
         document.getElementById('edad').textContent = data.edad || '';
         document.getElementById('historial_salud').textContent = data.historial_salud || '';
-
         document.getElementById('nombre-dueno').textContent = data.nombre_dueno || '';
         document.getElementById('telefono-dueno').textContent = data.telefono || '';
         document.getElementById('correo-dueno').textContent = data.correo || '';
@@ -178,8 +180,6 @@
 
 </body>
 </html>
-
-
 
 
 
