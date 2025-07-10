@@ -348,6 +348,7 @@ app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
         if (urlError) throw urlError;
 
         urlPublicaFoto = publicURL;
+        console.log('URL pública foto:', urlPublicaFoto);
 
       } catch (supabaseError) {
         console.error('❌ Error subiendo imagen a Supabase:', supabaseError);
@@ -357,6 +358,84 @@ app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
         });
       }
     }
+
+    // Preparar consulta y parámetros para actualizar la mascota
+    let queryMascota, paramsMascota;
+
+    if (urlPublicaFoto) {
+      queryMascota = `
+        UPDATE mascotas
+        SET nombre = $1, estado = $2, mensaje = $3, especie = $4, raza = $5,
+            edad = $6, historial_salud = $7, foto = $8
+        WHERE id = $9
+      `;
+      paramsMascota = [
+        nombre_mascota,
+        estado,
+        mensaje_mascota,
+        especie,
+        raza,
+        edad,
+        historial_salud,
+        urlPublicaFoto,
+        mascotaId
+      ];
+    } else {
+      queryMascota = `
+        UPDATE mascotas
+        SET nombre = $1, estado = $2, mensaje = $3, especie = $4, raza = $5,
+            edad = $6, historial_salud = $7
+        WHERE id = $8
+      `;
+      paramsMascota = [
+        nombre_mascota,
+        estado,
+        mensaje_mascota,
+        especie,
+        raza,
+        edad,
+        historial_salud,
+        mascotaId
+      ];
+    }
+
+    console.log('Ejecutando query de actualización mascota:', queryMascota);
+    console.log('Parámetros:', paramsMascota);
+
+    const resultMascota = await pool.query(queryMascota, paramsMascota);
+    console.log('Resultado actualización mascota:', resultMascota);
+
+    // Verificar que la foto quedó actualizada en la DB
+    const checkFoto = await pool.query('SELECT foto FROM mascotas WHERE id = $1', [mascotaId]);
+    console.log('Foto en DB después de update:', checkFoto.rows[0].foto);
+
+    // Actualizar datos del dueño
+    const queryDueno = `
+      UPDATE duenos
+      SET nombre = $1, telefono = $2, correo = $3, mensaje = $4
+      WHERE id = $5
+    `;
+
+    const resultDueno = await pool.query(queryDueno, [
+      nombre_dueno,
+      telefono,
+      correo,
+      mensaje_dueno,
+      duenoId
+    ]);
+    console.log('Resultado actualización dueño:', resultDueno);
+
+    res.json({ mensaje: 'Perfil actualizado correctamente' });
+
+  } catch (error) {
+    console.error('❌ Error actualizando perfil:', error);
+    res.status(500).json({
+      error: 'Error al actualizar el perfil',
+      detalle: error.message
+    });
+  }
+});
+
 
     // Actualizar datos de la mascota
     let queryMascota, paramsMascota;
