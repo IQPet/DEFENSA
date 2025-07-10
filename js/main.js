@@ -1,6 +1,12 @@
 // Espera a que cargue el DOM para ejecutar
 document.addEventListener("DOMContentLoaded", async () => {
-  const mascotaId = 1; // Ajusta este ID según la mascota
+  const params = new URLSearchParams(window.location.search);
+  const mascotaId = parseInt(params.get("id"), 10);
+
+  if (isNaN(mascotaId)) {
+    alert("⚠️ ID de mascota no especificado o inválido en la URL.");
+    return;
+  }
 
   try {
     const res = await fetch(`https://defensa-1.onrender.com/api/perfil/${mascotaId}`);
@@ -41,7 +47,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     };
 
-    // Ahora que el DOM está listo y datos cargados, agregar evento al botón
+    // Botón contactar por WhatsApp
     const btnContactar = document.getElementById('btn-contactar');
     if (btnContactar) {
       btnContactar.addEventListener('click', () => {
@@ -142,4 +148,3 @@ export function inferirIPPrivadaPorPatron(ipPuertaEnlace) {
 
   return null;
 }
-

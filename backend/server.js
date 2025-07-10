@@ -199,191 +199,69 @@ ${linkMapa ? `🌎 Ver en mapa: ${linkMapa}` : ''}
   }
 });
 
-// 🔍 Obtener datos del perfil (respuesta fija)
+// 🔍 Obtener datos del perfil por ID desde la BD
 console.log('Definiendo ruta GET /api/perfil/:id');
-app.get('/api/perfil/:id', (req, res) => {
-  // Ignoramos el id recibido y respondemos con el objeto fijo
-  const dataFija = {
-    id: 1,
-    dueno_id: 1,
-    nombre: "Snoopy",
-    especie: "Perro",
-    raza: "Pequines",
-    edad: "3 meses",
-    historial_salud: "Vacunado y desparasitado",
-    estado: "En casa",
-    mensaje: "Hola me he perdido ayúdame a estar en casa",
-    foto: "https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/premium_photo-1694819488591-a43907d1c5cc.jpg",
-    dueno: {
-      id: 1,
-      nombre: "Mishely",
-      telefono: "73958015",
-      correo: "melgarcoimbradora@gmail.com",
-      mensaje: "Hola estoy bien",
-      clave: "luna123"
-    }
-  };
-
-  return res.json(dataFija);
-});
-
-// ✏️ Actualizar perfil
-console.log('Definiendo ruta POST /api/editar-perfil/:id');
-app.post('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
-
-  console.log('📂 req.file:', req.file);  // Multer recibe la imagen
-  console.log('📋 req.body:', req.body);  // Datos del formulario
-
+app.get('/api/perfil/:id', async (req, res) => {
   const mascotaId = req.params.id;
-  const {
-    nombre_mascota,
-    estado,
-    mensaje_mascota,
-    especie,
-    raza,
-    edad,
-    historial_salud,
-    nombre_dueno,
-    telefono,
-    correo,
-    mensaje_dueno,
-    foto // aquí esperamos que venga la URL completa si no suben archivo
-  } = req.body;
 
   try {
-    // Obtener el ID del dueño para actualizar también sus datos
-    const duenoQuery = await pool.query(
-      `SELECT dueno_id FROM mascotas WHERE id = $1`,
-      [mascotaId]
-    );
+    const query = `
+      SELECT 
+        m.id,
+        m.dueno_id,
+        m.nombre AS nombre_mascota,
+        m.especie,
+        m.raza,
+        m.edad,
+        m.historial_salud,
+        m.estado,
+        m.mensaje AS mensaje_mascota,
+        m.foto AS foto_url,
+        d.id AS dueno_id,
+        d.nombre AS nombre_dueno,
+        d.telefono,
+        d.correo,
+        d.mensaje AS mensaje_dueno
+      FROM mascotas m
+      JOIN duenos d ON m.dueno_id = d.id
+      WHERE m.id = $1
+    `;
 
-    if (duenoQuery.rows.length === 0) {
+    const result = await pool.query(query, [mascotaId]);
+
+    if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Mascota no encontrada' });
     }
 
-    const duenoId = duenoQuery.rows[0].dueno_id;
+    // Estructura para que coincida con la que usas en frontend
+    const fila = result.rows[0];
+    const respuesta = {
+      id: fila.id,
+      dueno_id: fila.dueno_id,
+      nombre_mascota: fila.nombre_mascota,
+      especie: fila.especie,
+      raza: fila.raza,
+      edad: fila.edad,
+      historial_salud: fila.historial_salud,
+      estado: fila.estado,
+      mensaje_mascota: fila.mensaje_mascota,
+      foto_url: fila.foto_url || 'https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas/default.jpg',
+      nombre_dueno: fila.nombre_dueno,
+      telefono: fila.telefono,
+      correo: fila.correo,
+      mensaje_dueno: fila.mensaje_dueno
+    };
 
-    let fileName = null;
-
-    if (req.file) {
-      const fileExt = req.file.originalname.split('.').pop();
-      fileName = `mascota_${mascotaId}.${fileExt}`;  // Nombre fijo sin timestamp
-
-      try {
-        // Subir la imagen a Supabase Storage (con upsert para reemplazar)
-        const { data, error } = await supabase.storage
-          .from('mascotas')
-          .upload(fileName, req.file.buffer, {
-            contentType: req.file.mimetype,
-            upsert: true,
-          });
-
-        if (error) throw error;
-
-        console.log('✅ Imagen subida a Supabase con nombre:', fileName);
-
-      } catch (supabaseError) {
-        console.error('❌ Error subiendo imagen a Supabase:', supabaseError);
-        return res.status(500).json({
-          error: 'Error subiendo imagen a Supabase',
-          detalle: supabaseError.message
-        });
-      }
-    }
-
-    // Construir consulta y parámetros para actualizar la mascota
-    let queryMascota, paramsMascota;
-
-    if (fileName) {
-      // Caso: imagen nueva subida, guardamos solo el nombre
-      queryMascota = `
-        UPDATE mascotas
-        SET nombre = $1, estado = $2, mensaje = $3, especie = $4, raza = $5,
-            edad = $6, historial_salud = $7, foto = $8
-        WHERE id = $9
-      `;
-      paramsMascota = [
-        nombre_mascota,
-        estado,
-        mensaje_mascota,
-        especie,
-        raza,
-        edad,
-        historial_salud,
-        fileName,
-        mascotaId
-      ];
-    } else if (foto && foto.trim() !== '') {
-      // Caso: no se subió imagen, pero viene foto con URL completa desde el frontend
-      queryMascota = `
-        UPDATE mascotas
-        SET nombre = $1, estado = $2, mensaje = $3, especie = $4, raza = $5,
-            edad = $6, historial_salud = $7, foto = $8
-        WHERE id = $9
-      `;
-      paramsMascota = [
-        nombre_mascota,
-        estado,
-        mensaje_mascota,
-        especie,
-        raza,
-        edad,
-        historial_salud,
-        foto.trim(),
-        mascotaId
-      ];
-    } else {
-      // Caso: no se actualiza la foto
-      queryMascota = `
-        UPDATE mascotas
-        SET nombre = $1, estado = $2, mensaje = $3, especie = $4, raza = $5,
-            edad = $6, historial_salud = $7
-        WHERE id = $8
-      `;
-      paramsMascota = [
-        nombre_mascota,
-        estado,
-        mensaje_mascota,
-        especie,
-        raza,
-        edad,
-        historial_salud,
-        mascotaId
-      ];
-    }
-
-    console.log('📤 Ejecutando query actualización mascota:', queryMascota);
-    console.log('📋 Con parámetros:', paramsMascota);
-
-    const result = await pool.query(queryMascota, paramsMascota);
-
-    console.log('✅ Resultado actualización mascota:', result);
-
-    // Actualizar datos del dueño
-    const queryDueno = `
-      UPDATE duenos
-      SET nombre = $1, telefono = $2, correo = $3, mensaje = $4
-      WHERE id = $5
-    `;
-
-    await pool.query(queryDueno, [
-      nombre_dueno,
-      telefono,
-      correo,
-      mensaje_dueno,
-      duenoId
-    ]);
-
-    res.json({ mensaje: 'Perfil actualizado correctamente' });
-
+    return res.json(respuesta);
   } catch (error) {
-    console.error('❌ Error actualizando perfil:', error);
-    res.status(500).json({
-      error: 'Error al actualizar el perfil',
-      detalle: error.message
+    console.error('❌ Error obteniendo perfil:', error);
+    return res.status(500).json({
+      error: 'Error al obtener el perfil',
+      detalle: error.message,
     });
   }
 });
+
 
 
 console.log("🛠️ Versión corregida sin path-to-regexp directa");
