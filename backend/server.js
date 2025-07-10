@@ -231,27 +231,8 @@ app.get('/api/perfil/:id', async (req, res) => {
       return res.status(404).json({ error: 'Mascota no encontrada' });
     }
 
-    let mascota = result.rows[0];
-
-    if (mascota.foto) {
-      let rutaRelativa = mascota.foto.trim();
-
-      // Verifica si contiene el prefijo 'mascotas/' o no
-      if (!rutaRelativa.startsWith('mascotas/')) {
-        rutaRelativa = `mascotas/${rutaRelativa}`;
-      }
-
-      const { publicURL, error } = supabase.storage
-        .from('mascotas')
-        .getPublicUrl(rutaRelativa);
-
-      if (!error && publicURL) {
-        mascota.foto = publicURL;
-      } else {
-        console.error('❌ Error obteniendo URL pública:', error?.message || 'Sin detalle');
-        mascota.foto = null; // Previene links rotos en el frontend
-      }
-    }
+    // La URL pública ya está en m.foto, no hay que reconstruirla
+    const mascota = result.rows[0];
 
     res.json(mascota);
 
@@ -310,8 +291,8 @@ app.post('/api/validar-dueno', cors(corsOptions), async (req, res) => {
 // ✏️ Actualizar perfil
 console.log('Definiendo ruta PUT /api/editar-perfil/:id');
 app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
-  console.log('📂 req.file:', req.file);  // Aquí vemos si multer recibe la imagen
-  console.log('📋 req.body:', req.body);  // Para ver el resto de datos recibidos
+  console.log('📂 req.file:', req.file);  // Multer recibe la imagen
+  console.log('📋 req.body:', req.body);  // Datos del formulario
 
   const mascotaId = req.params.id;
   const {
@@ -329,6 +310,7 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
   } = req.body;
 
   try {
+    // Obtener el ID del dueño para actualizar también sus datos
     const duenoQuery = await pool.query(
       `SELECT dueno_id FROM mascotas WHERE id = $1`,
       [mascotaId]
@@ -340,13 +322,14 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
 
     const duenoId = duenoQuery.rows[0].dueno_id;
 
-    let rutaRelativaFoto = null;
+    let urlPublicaFoto = null;
 
     if (req.file) {
       const fileExt = req.file.originalname.split('.').pop();
       const fileName = `mascotas/mascota_${mascotaId}_${Date.now()}.${fileExt}`;
 
       try {
+        // Subir la imagen a Supabase Storage
         const { data, error } = await supabase.storage
           .from('mascotas')
           .upload(fileName, req.file.buffer, {
@@ -356,15 +339,25 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
 
         if (error) throw error;
 
-        // ✅ Solo guardamos la ruta relativa en la base de datos
-        rutaRelativaFoto = fileName;
+        // Obtener URL pública completa
+        const { publicURL, error: urlError } = supabase.storage
+          .from('mascotas')
+          .getPublicUrl(fileName);
+
+        if (urlError) throw urlError;
+
+        urlPublicaFoto = publicURL;
 
       } catch (supabaseError) {
         console.error('❌ Error subiendo imagen a Supabase:', supabaseError);
-        return res.status(500).json({ error: 'Error subiendo imagen a Supabase', detalle: supabaseError.message });
+        return res.status(500).json({
+          error: 'Error subiendo imagen a Supabase',
+          detalle: supabaseError.message
+        });
       }
     }
 
+    // Actualizar datos de la mascota
     let queryMascota = `
       UPDATE mascotas
       SET nombre = $1, estado = $2, mensaje = $3, especie = $4, raza = $5, edad = $6,
@@ -380,9 +373,9 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
       historial_salud
     ];
 
-    if (rutaRelativaFoto) {
+    if (urlPublicaFoto) {
       queryMascota += `, foto = $8 WHERE id = $9`;
-      paramsMascota.push(rutaRelativaFoto, mascotaId);
+      paramsMascota.push(urlPublicaFoto, mascotaId);
     } else {
       queryMascota += ` WHERE id = $8`;
       paramsMascota.push(mascotaId);
@@ -390,6 +383,7 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
 
     await pool.query(queryMascota, paramsMascota);
 
+    // Actualizar datos del dueño
     const queryDueno = `
       UPDATE duenos
       SET nombre = $1, telefono = $2, correo = $3, mensaje = $4
@@ -408,9 +402,13 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
 
   } catch (error) {
     console.error('❌ Error actualizando perfil:', error);
-    res.status(500).json({ error: 'Error al actualizar el perfil', detalle: error.message });
+    res.status(500).json({
+      error: 'Error al actualizar el perfil',
+      detalle: error.message
+    });
   }
 });
+
 
 console.log("🛠️ Versión corregida sin path-to-regexp directa");
 
