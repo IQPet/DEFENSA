@@ -358,7 +358,6 @@ app.put('/api/editar-perfil/:id', upload.single('foto'), async (req, res) => {
 });
 
 
-
 // 🚀 Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor backend escuchando en puerto ${PORT}`);

@@ -1,18 +1,21 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
-// Configura el transporter usando variables de entorno
+// Configura el transporter usando Brevo
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: "smtp-relay.brevo.com", // host de Brevo
+  port: 587,                     // puerto recomendado por Brevo
   auth: {
-    user: process.env.EMAIL_USER,       // usa variable .env
-    pass: process.env.EMAIL_PASS        // usa variable .env
+    user: "tu_correo@dominio.com",        // correo registrado en Brevo
+    pass: process.env.BREVO_API_KEY       // tu API Key en variable de entorno
   }
 });
 
 export async function enviarCredenciales(correo, nombre, clave, idMascota) {
   console.log('🚀 enviarCredenciales llamada con:', { correo, nombre, clave, idMascota });
 
+  // URL de perfil
   const url = `https://defensa-1.onrender.com/perfil.html?id=${idMascota}`;
+
   const mensaje = `
 Hola ${nombre || 'Dueño'},
 
@@ -28,15 +31,16 @@ Gracias por usar IQPET 🐾
 
   try {
     const info = await transporter.sendMail({
-      from: `"IQPET" <${process.env.EMAIL_USER}>`,  // también aquí
+      from: `"IQPET" <no-reply@iqpet.com>`, // nombre visible en el correo
       to: correo,
       subject: '🐶 Perfil de tu mascota creado en IQPET',
-      text: mensaje
+      text: mensaje,
+      html: `<p>${mensaje.replace(/\n/g, "<br>")}</p>` // para que tenga salto de línea en HTML
     });
+
     console.log('✅ Correo enviado:', info.messageId);
   } catch (error) {
-    console.error('❌ Error enviando correo:', error);
-    throw error; // Propaga el error para manejarlo fuera si es necesario
+    console.error('❌ Error enviando correo:', error.message);
+    throw error; // Propaga el error para que Railway pueda mostrarlo si falla
   }
 }
-
