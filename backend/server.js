@@ -55,8 +55,6 @@ app.use(express.json());
 // Servir archivos estáticos del frontend (perfil.html y otros en la raíz)
 app.use(express.static(rootPath));
 
-// Carpeta pública donde estarán todos los HTML y assets
-const publicPath = path.join(__dirname, 'public');
 
 // Opcional: cuando visiten la raíz, enviar perfil.html
 app.get('/', (req, res) => {
@@ -65,7 +63,7 @@ app.get('/', (req, res) => {
 
 // Servir elegir-mascota.html
 app.get('/elegir-mascota.html', (req, res) => {
-  res.sendFile(path.join(publicPath, 'elegir-mascota.html'));
+  res.sendFile(path.join(rootPath, 'elegir-mascota.html'));
 });
 
 
