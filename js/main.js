@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   try {
-    const res = await fetch(`https://defensa-1.onrender.com/api/perfil/${mascotaId}`);
+    const res = await fetch(`https://defensa-production.up.railway.app/api/perfil/${mascotaId}`);
     const data = await res.json();
 
     if (res.status !== 200) {
@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   } catch (err) {
     console.error("❌ Error cargando datos:", err);
-    alert("No se pudo cargar la información del perfil.");
+    alert("Buscando la información del perfil.");
   }
 });
 

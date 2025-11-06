@@ -82,56 +82,7 @@
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/ua-parser-js@1.0.35/dist/ua-parser.min.js"></script>
 
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const mascota = {
-      id: 1,
-      dueno_id: 1,
-      nombre: "Snoopy",
-      especie: "Perro",
-      raza: "Pequines",
-      edad: "3 meses",
-      historial_salud: "Vacunado y desparasitado",
-      estado: "En casa",
-      mensaje: "Hola me he perdido ayúdame a estar en casa",
-      foto: "https://hfmfwrgnaxknywfbocrl.supabase.co/storage/v1/object/public/mascotas//premium_photo-1694819488591-a43907d1c5cc.jpg"
-    };
-
-    const dueno = {
-      id: 1,
-      nombre: "Mishely",
-      telefono: "73958015",
-      correo: "melgarcoimbradora@gmail.com",
-      mensaje: "Hola estoy bien"
-    };
-
-    try {
-      document.getElementById('foto-mascota').src = mascota.foto || '';
-      document.getElementById('nombre-mascota').textContent = mascota.nombre || '(sin dato)';
-      document.getElementById('estado').textContent = mascota.estado || '(sin dato)';
-      document.getElementById('mensaje-mascota').textContent = mascota.mensaje || '(sin dato)';
-      document.getElementById('especie').textContent = mascota.especie || '(sin dato)';
-      document.getElementById('raza').textContent = mascota.raza || '(sin dato)';
-      document.getElementById('edad').textContent = mascota.edad || '(sin dato)';
-      document.getElementById('historial_salud').textContent = mascota.historial_salud || '(sin dato)';
-
-      document.getElementById('nombre-dueno').textContent = dueno.nombre || '(sin dato)';
-      document.getElementById('telefono-dueno').textContent = dueno.telefono || '(sin dato)';
-      document.getElementById('correo-dueno').textContent = dueno.correo || '(sin dato)';
-      document.getElementById('mensaje-dueno').textContent = dueno.mensaje || '(sin dato)';
-    } catch (err) {
-      console.error('Error cargando datos del perfil:', err);
-    }
-
-    document.getElementById('btn-contactar').addEventListener('click', () => {
-      if (!dueno.telefono) {
-        console.warn('No hay teléfono disponible para contactar.');
-        return;
-      }
-      window.open(`https://wa.me/${dueno.telefono}`, '_blank');
-    });
-  });
-  </script>
+  
 <script type="module" src="js/main.js"></script>
   <script type="module" src="js/perfil-consentimiento.js"></script>
 </body>
