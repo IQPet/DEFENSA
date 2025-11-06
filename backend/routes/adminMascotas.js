@@ -234,4 +234,69 @@ router.get('/mascota/:id', async (req, res) => {
   }
 });
 
+/* ===============================
+   PUT /api/editar-perfil/:id
+   (Editar datos de la mascota)
+================================ */
+router.put('/editar-perfil/:id', upload.single('foto'), async (req, res) => {
+  const id = req.params.id;
+
+  const {
+    nombre, especie, raza, edad, estado, mensaje, historial_salud,
+    nombre_dueno, telefono, correo, mensaje_dueno
+  } = req.body;
+
+  try {
+    // 1️⃣ Actualizar datos del dueño si se proporcionó correo
+    if (correo) {
+      await pool.query(
+        `UPDATE duenos SET nombre=$1, telefono=$2, mensaje=$3 WHERE correo=$4`,
+        [nombre_dueno, telefono, mensaje_dueno, correo]
+      );
+    }
+
+    // 2️⃣ Subir nueva foto si se seleccionó
+    let fotoUrl;
+    if (req.file) {
+      const archivo = req.file;
+      const nombreArchivo = `mascota_${Date.now()}${path.extname(archivo.originalname)}`;
+      const { error: uploadError } = await supabase.storage
+        .from('mascotas')
+        .upload(nombreArchivo, archivo.buffer, {
+          contentType: archivo.mimetype,
+          upsert: true
+        });
+      if (uploadError) console.warn('⚠️ No se pudo subir nueva foto:', uploadError.message);
+      else {
+        const { data: publicUrlData } = supabase.storage
+          .from('mascotas')
+          .getPublicUrl(nombreArchivo);
+        fotoUrl = publicUrlData.publicUrl;
+      }
+    }
+
+    // 3️⃣ Actualizar datos de la mascota
+    const edadFinal = parseInt(edad) || null;
+    let estadoNormalizado = estado?.trim().toLowerCase();
+    estadoNormalizado = (estadoNormalizado === 'perdido') ? 'Perdida' : 'En casa';
+
+    const query = `
+      UPDATE mascotas
+      SET nombre=$1, especie=$2, raza=$3, edad=$4, estado=$5, mensaje=$6, historial_salud=$7 ${fotoUrl ? ', foto=$8' : ''}
+      WHERE id=$9
+      RETURNING *
+    `;
+    const values = fotoUrl
+      ? [nombre, especie, raza, edadFinal, estadoNormalizado, mensaje, historial_salud, fotoUrl, id]
+      : [nombre, especie, raza, edadFinal, estadoNormalizado, mensaje, historial_salud, id];
+
+    const result = await pool.query(query, values);
+    res.json({ success: true, mascota: result.rows[0] });
+
+  } catch (error) {
+    console.error('❌ Error editando mascota:', error);
+    res.status(500).json({ error: 'Error interno al editar mascota' });
+  }
+});
+
 export default router;

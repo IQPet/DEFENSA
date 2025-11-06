@@ -31,16 +31,18 @@ Gracias por usar IQPET 🐾
 
   try {
     const info = await transporter.sendMail({
-      from: `"IQPET" <no-reply@iqpet.com>`, // nombre visible en el correo
+      from: `"IQPET" <no-reply@iqpet.com>`,
       to: correo,
       subject: '🐶 Perfil de tu mascota creado en IQPET',
       text: mensaje,
-      html: `<p>${mensaje.replace(/\n/g, "<br>")}</p>` // para que tenga salto de línea en HTML
+      html: `<p>${mensaje.replace(/\n/g, "<br>")}</p>`
     });
 
     console.log('✅ Correo enviado:', info.messageId);
+
   } catch (error) {
-    console.error('❌ Error enviando correo:', error.message);
-    throw error; // Propaga el error para que Railway pueda mostrarlo si falla
+    console.warn('⚠️ ERROR SMTP (no bloquea creación de mascota):', error.message);
+    // ❌ OJO: no hacemos "throw error" aquí
+    // Esto permite que el backend siga funcionando aunque el correo falle
   }
 }
