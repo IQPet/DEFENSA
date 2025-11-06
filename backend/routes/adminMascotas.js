@@ -81,36 +81,34 @@ router.post('/crear-mascota', upload.single('foto'), async (req, res) => {
     const duenoRes = await pool.query('SELECT id FROM duenos WHERE correo = $1', [correo]);
 
     if (duenoRes.rowCount > 0) {
-      duenoId = duenoRes.rows[0].id;
-    } else {
-      const clave = Math.random().toString(36).substring(2, 8); // clave temporal
+  duenoId = duenoRes.rows[0].id;
+} else {
+  const clave = Math.random().toString(36).substring(2, 8); // clave temporal
 
-      console.log('📧 Creando nuevo dueño y enviando correo...');
-      try {
-        const nuevoDueno = await pool.query(
-          `INSERT INTO duenos (nombre, telefono, correo, mensaje, clave)
-           VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-          [
-            dueno_nombre || 'Dueño',
-            telefono || '',
-            correo,
-            mensaje_dueno || '',
-            clave
-          ]
-        );
-        duenoId = nuevoDueno.rows[0].id;
+  console.log('📧 Creando nuevo dueño...');
+  try {
+    const nuevoDueno = await pool.query(
+      `INSERT INTO duenos (nombre, telefono, correo, mensaje, clave)
+       VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+      [dueno_nombre || 'Dueño', telefono || '', correo, mensaje_dueno || '', clave]
+    );
+    duenoId = nuevoDueno.rows[0].id;
 
-        console.log(`🔑 Clave temporal generada: ${clave}`);
-        console.log(`📨 Llamando a enviarCredenciales para: ${correo}`);
-
-        await enviarCredenciales(correo, dueno_nombre || 'Dueño', clave, duenoId);
-
-        console.log('✅ Correo enviado correctamente o función terminó sin error.');
-      } catch (error) {
-        console.error('❌ Error creando dueño o enviando correo:', error);
-        return res.status(500).json({ error: 'Error al crear dueño o enviar correo.' });
-      }
+    console.log(`🔑 Clave temporal generada: ${clave}`);
+    
+    // ❌ Aquí antes estaba el await enviarCredenciales, ahora comentado
+    try {
+      console.log('🔹 Ignorando envío de correo SMTP temporalmente para no bloquear la creación');
+      // await enviarCredenciales(correo, dueno_nombre || 'Dueño', clave, duenoId);
+    } catch (error) {
+      console.warn('⚠️ Error enviando correo (ignorado temporalmente):', error);
     }
+
+  } catch (error) {
+    console.error('❌ Error creando dueño:', error);
+    return res.status(500).json({ error: 'Error al crear dueño.' });
+  }
+}
 
     // === NUEVO: subir imagen a Supabase Storage ===
     const archivo = req.file;
