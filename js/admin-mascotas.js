@@ -1,11 +1,12 @@
 // js/admin-mascotas.js
 
 const ADMIN_CORREO = 'admin@iqpet.com'; // Cambiar si es necesario
+const BACKEND_URL = 'https://defensa-production.up.railway.app'; // URL de tu backend en Railway
 
 // Carga todas las mascotas desde el backend
 async function cargarMascotas() {
   try {
-    const respuesta = await fetch('/api/admin/mascotas', {
+    const respuesta = await fetch(`${BACKEND_URL}/api/admin/mascotas`, {
       headers: { 'x-admin-correo': ADMIN_CORREO }
     });
 
@@ -35,20 +36,18 @@ function mostrarMascotas(mascotas) {
     const div = document.createElement('div');
     div.className = 'mascota';
 
-    // Construir URL del perfil
-    const perfilURL = m.id === 1
-      ? 'https://defensa-1.onrender.com/perfil.html'
-      : `https://defensa-1.onrender.com/perfil.html?id=${m.id}`;
+    // Construir URL del perfil usando el backend de Railway
+    const perfilURL = `${BACKEND_URL}/perfil.html?id=${m.id}`;
 
     // Render HTML de mascota
     div.innerHTML = `
-      <strong>🐾 ${m.nombre}</strong><br>
+      <strong>🐾 ${m.nombre || 'Sin nombre'}</strong><br>
       <small>ID: ${m.id}</small><br>
       Especie: ${m.especie || 'No especificado'}<br>
       Raza: ${m.raza || 'No especificado'}<br>
       Edad: ${m.edad || 'No especificada'}<br>
       Estado: ${m.estado || 'Desconocido'}<br>
-      Dueño: ${m.dueno_nombre || 'Sin nombre'} (${m.dueno_correo})<br>
+      Dueño: ${m.dueno_nombre || 'Sin nombre'} (${m.dueno_correo || 'No disponible'})<br>
       Teléfono: ${m.dueno_telefono || 'No disponible'}<br>
       <a href="${perfilURL}" target="_blank">🔗 Ver perfil público</a>
     `;

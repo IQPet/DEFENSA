@@ -1,4 +1,7 @@
+// js/crear-mascota.js
+
 const ADMIN_CORREO = 'admin@iqpet.com';
+const BACKEND_URL = 'https://defensa-production.up.railway.app'; // URL de tu backend en Railway
 
 // Subida y creación de mascota
 document.getElementById('form-mascota').addEventListener('submit', async (e) => {
@@ -8,7 +11,7 @@ document.getElementById('form-mascota').addEventListener('submit', async (e) => 
   const formData = new FormData(form);
 
   try {
-    const res = await fetch('/api/admin/crear-mascota', {
+    const res = await fetch(`${BACKEND_URL}/api/admin/crear-mascota`, {
       method: 'POST',
       headers: {
         'x-admin-correo': ADMIN_CORREO
@@ -29,7 +32,7 @@ document.getElementById('form-mascota').addEventListener('submit', async (e) => 
     document.getElementById('preview-foto').style.display = 'none';
 
   } catch (err) {
-    console.error('Error:', err);
+    console.error('❌ Error al conectar con el servidor:', err);
     alert('❌ Error al conectar con el servidor.');
   }
 });
@@ -40,7 +43,7 @@ document.getElementById('correo').addEventListener('blur', async () => {
   if (!correo) return;
 
   try {
-    const res = await fetch(`/api/admin/dueno-por-correo?correo=${encodeURIComponent(correo)}`, {
+    const res = await fetch(`${BACKEND_URL}/api/admin/dueno-por-correo?correo=${encodeURIComponent(correo)}`, {
       headers: {
         'x-admin-correo': ADMIN_CORREO
       }
@@ -54,7 +57,7 @@ document.getElementById('correo').addEventListener('blur', async () => {
     document.getElementById('telefono').value = dueno.telefono || '';
     document.getElementById('mensaje_dueno').value = dueno.mensaje || '';
   } catch (e) {
-    console.warn('No se pudo cargar los datos del dueño');
+    console.warn('⚠️ No se pudo cargar los datos del dueño:', e);
   }
 });
 
@@ -75,3 +78,4 @@ document.getElementById('foto').addEventListener('change', (e) => {
     preview.style.display = 'none';
   }
 });
+
