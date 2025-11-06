@@ -60,6 +60,12 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(rootPath, 'perfil.html'));
 });
 
+// Servir elegir-mascota.html
+app.get('/elegir-mascota.html', (req, res) => {
+  res.sendFile(path.join(rootPath, 'elegir-mascota.html'));
+});
+
+
 // Servir imágenes estáticas backend
 app.use('/imagenes', express.static(path.join(__dirname, 'imagenes')));
 
