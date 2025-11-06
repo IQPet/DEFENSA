@@ -56,15 +56,17 @@ app.use(express.json());
 app.use(express.static(rootPath));
 
 
-// Opcional: cuando visiten la raíz, enviar perfil.html
+// Servir HTML
 app.get('/', (req, res) => {
-  res.sendFile(path.join(rootPath, 'perfil.html'));
+  res.sendFile(path.resolve(__dirname, '../perfil.html'));
 });
 
-// Servir elegir-mascota.html
 app.get('/elegir-mascota.html', (req, res) => {
-  res.sendFile(path.join(rootPath, 'elegir-mascota.html'));
+  res.sendFile(path.resolve(__dirname, '../elegir-mascota.html'));
 });
+
+// Servir carpeta assets (CSS, JS, imágenes)
+app.use('/assets', express.static(path.resolve(__dirname, '../assets')));
 
 
 // Servir imágenes estáticas backend
