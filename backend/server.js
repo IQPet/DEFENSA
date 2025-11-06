@@ -52,23 +52,23 @@ app.options('*', cors(corsOptions), (req, res) => {
 
 app.use(express.json());
 
-// Directorio público dentro de backend
-const publicDir = path.join(__dirname, 'public');
+// Servir archivos estáticos del frontend (perfil.html y otros en la raíz)
+app.use(express.static(rootPath));
 
-// Servir archivos estáticos de backend/public
-app.use(express.static(publicDir));
 
-// Rutas explícitas (opcional, pero útil)
+// Servir HTML
 app.get('/', (req, res) => {
-  res.sendFile(path.join(publicDir, 'perfil.html'));
+  res.sendFile(path.resolve(__dirname, '../perfil.html'));
 });
 
 app.get('/elegir-mascota.html', (req, res) => {
-  res.sendFile(path.join(publicDir, 'elegir-mascota.html'));
+  res.sendFile(path.resolve(__dirname, '../elegir-mascota.html'));
 });
 
 // Servir carpeta assets (CSS, JS, imágenes)
-app.use('/assets', express.static(path.join(publicDir, 'assets')));
+app.use('/assets', express.static(path.resolve(__dirname, '../assets')));
+
+
 
 // Servir imágenes estáticas backend
 app.use('/imagenes', express.static(path.join(__dirname, 'imagenes')));
