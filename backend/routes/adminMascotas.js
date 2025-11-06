@@ -167,7 +167,7 @@ router.post('/crear-mascota', upload.single('foto'), async (req, res) => {
     const id = insertMascota.rows[0].id;
     console.log('✅ Mascota insertada con ID:', id);
 
-   const url = `https://defensa-1.onrender.com/ver-mascota.html?id=${id}`;
+   const url = `https://defensa-production.up.railway.app/ver-mascota.html?id=${id}`;
 
     res.json({ id, url });
   } catch (err) {
